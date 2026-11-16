@@ -29,7 +29,8 @@ import axios from 'axios';            # ✗
 
 ### 2. 不许引入 Windows 专属脚本
 
-本项目面向 Linux 容器（amd64 + arm64）运行。**不许新增 `.cmd` / `.bat` / `.ps1`**，
+本项目面向 Linux 容器（amd64 + arm64）运行。**不许新增 Windows 专属脚本**
+（`.cmd` / `.bat` / `.ps1`），
 启动入口统一是 `node src/index.mjs`。也不许在代码里写死 Windows 路径
 （盘符、`%APPDATA%`、注册表等）。依赖平台行为的逻辑（如文件权限收紧）
 必须给出非 Windows 的实现路径。

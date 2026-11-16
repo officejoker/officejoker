@@ -6,11 +6,7 @@
 
 **零依赖** —— 只用 Node.js 内置模块，不用 `npm install`。
 
-> 本项目由 officeace2api 改造而来：移除全部 Windows 专属逻辑（`.cmd` 启动脚本、
-> DPAPI 解密、icacls、PowerShell 判活、桌面端扫盘路径），面向 Linux 容器运行。
 > 账号请通过**控制台自助登录**或手工导入 / 上游直连模式提供。
-
-![控制台](docs/panel-accounts.png)
 
 ---
 
@@ -85,6 +81,10 @@ docker run -d \
 ```bash
 mkdir -p ./data ./logs
 
+# 关键：把挂载目录的属主交给容器内的运行用户（UID/GID = 10001），
+# 否则容器写入 ./data ./logs 会报 Permission denied
+sudo chown -R 10001:10001 ./data ./logs
+
 docker run -d \
   --name officejoker \
   --restart unless-stopped \
@@ -93,6 +93,10 @@ docker run -d \
   -v "$(pwd)/logs:/app/logs" \
   ghcr.io/officejoker/officejoker:latest
 ```
+
+> **为什么是 10001**：容器内进程以固定 UID/GID `10001` 运行（非 root）。
+> 挂载宿主机目录时内核按数字 UID 判定权限，与用户名无关，所以宿主机上
+> 必须把目录 `chown` 成同样的 `10001:10001`。
 
 **带环境变量**（免 config 文件，直接覆盖默认配置）：
 
@@ -180,6 +184,7 @@ curl http://127.0.0.1:7864/healthz  # 健康检查（返回版本）
 
 ```bash
 mkdir -p data logs
+sudo chown -R 10001:10001 data logs   # 同上：目录属主给容器运行用户（10001:10001）
 docker compose up -d
 docker compose logs -f
 ```
@@ -223,19 +228,11 @@ node tools/run-tests.mjs
 
 ---
 
-## 五、与原版（officeace2api）的差异
+## 五、运行用户与目录权限
 
-| 项 | 原版 | 本版 |
-|---|---|---|
-| 运行平台 | Windows 为主 | Linux 容器（amd64 + arm64），任何能跑 Node 20 的地方 |
-| 启动方式 | `start.cmd` 等批处理 | `node src/index.mjs` / Docker |
-| DPAPI 加密档案 | 支持（PowerShell 解密） | 不支持：容器里没有 DPAPI，加密档案不可读（明文凭据、自助登录、上游直连均不受影响） |
-| 桌面端扫盘 | 扫 `C:\…\OfficeAce` 等盘符 | 移除盘符路径；如需扫描指定目录，挂载后用 `OFFICEJOKER_INSTALL_DIR` 指向它 |
-| Windows 文件权限（icacls） | 有 | POSIX `chmod 600` |
-| 进程判活 | PowerShell 查进程创建时间 | `/proc` 语义（pid + kill 0） |
-| 默认 API Key | `sk-officeace` | `sk-officejoker` |
-
-其余功能逻辑、配置结构、面板交互与原版一致。
+- 容器内进程以**非 root** 的固定 UID/GID `10001:10001` 运行
+- 凡是挂载进容器的宿主机目录（`./data`、`./logs`），都要 `sudo chown -R 10001:10001 <目录>`，否则写入报 `Permission denied`
+- `data/` 内文件由服务自动收紧到 `0600`，宿主机上直接 `cat` 需 root 或 10001 用户
 
 ## 六、安全须知
 

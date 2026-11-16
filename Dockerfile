@@ -2,9 +2,13 @@
 # 项目零 npm 依赖，只用 Node 内置模块，构建就是拷文件，极快。
 FROM --platform=$BUILDPLATFORM node:20-alpine
 
+# 固定 UID/GID = 10001：挂载宿主机目录时，直接
+#   chown -R 10001:10001 ./data ./logs
+# 不用去镜像里查运行用户是谁。
 # tini 做 PID 1：正确转发 SIGTERM，容器 stop 时优雅退出（保证 refresh_token 状态落盘）
 RUN apk add --no-cache tini ca-certificates \
-    && addgroup -S app && adduser -S app -G app
+    && addgroup -g 10001 -S app \
+    && adduser -u 10001 -G app -S -D -H -h /app app
 
 WORKDIR /app
 
@@ -17,10 +21,10 @@ COPY src/ ./src/
 COPY tools/ ./tools/
 
 # data/（凭据与状态）、logs/ 挂出来，容器重建后状态不丢
-RUN mkdir -p /app/data /app/logs && chown -R app:app /app
+RUN mkdir -p /app/data /app/logs && chown -R 10001:10001 /app
 VOLUME ["/app/data", "/app/logs"]
 
-USER app
+USER 10001:10001
 
 ENV NODE_ENV=production \
     OFFICEJOKER_HOST=0.0.0.0 \
