@@ -1,0 +1,211 @@
+# 贡献指南
+
+感谢你有兴趣改进 officejoker！本文档说明本项目的**硬性约束**和**提交流程**。
+动手前请先读完「一、改之前必须知道的」，那几条不是建议，是硬规矩 —— 违反会导致
+功能在你的机器上正常、在别人机器上直接崩。
+
+---
+
+## 一、改之前必须知道的
+
+### 1. 零依赖 —— 不许引入任何 npm 包
+
+这是本项目最大的卖点，也是**不可妥协的约束**：
+
+```bash
+# 正确：只用 Node.js 内置模块
+import { readFileSync } from 'node:fs';
+import { createServer } from 'node:http';
+
+# 禁止：任何形式的第三方依赖
+import express from 'express';        # ✗
+import axios from 'axios';            # ✗
+```
+
+`package.json` 里的 `dependencies` **必须永远为空**。PR 里出现新的 npm 依赖会直接被拒。
+
+> 原因：用户 clone 下来双击就能跑，不需要联网、不需要 `npm install`、
+> 不会有供应链投毒风险。这个项目会接触云端凭据，第三方依赖是重大风险面。
+
+### 2. 不许引入 Windows 专属脚本
+
+本项目面向 Linux 容器（amd64 + arm64）运行。**不许新增 `.cmd` / `.bat` / `.ps1`**，
+启动入口统一是 `node src/index.mjs`。也不许在代码里写死 Windows 路径
+（盘符、`%APPDATA%`、注册表等）。依赖平台行为的逻辑（如文件权限收紧）
+必须给出非 Windows 的实现路径。
+### 3. `data/` 和 `logs/` 永远不进仓库
+
+```
+data/                     → 面板口令、明文 AK/SK、refresh_token、DPoP 私钥
+config.local.json         → 本机 apiKeys
+logs/                     → 日志
+```
+
+这三类已在 `.gitignore` 里。**提交前务必确认没有把凭据带进去**：
+
+```bash
+git diff --cached --name-only | Select-String "data/|logs/|config.local"
+```
+
+`.mjs` 会把本机密码/密钥写进 `data/`，其余文件只读不写 —— 别破坏这个约定。
+
+### 4. 注释和文档用中文
+
+面向的用户是中文用户。代码里的注释、控制台文案、文档都用中文。
+变量名、函数名用英文。
+
+---
+
+## 二、开发环境
+
+```bash
+git clone https://github.com/你的用户名/officejoker.git
+cd officejoker
+```
+
+**不需要 `npm install`。** 只需要 Node.js ≥ 20：
+
+```bash
+node -v
+```
+
+启动调试模式（前台运行，日志直接打在终端）：
+
+```bash
+node src/index.mjs
+```
+
+---
+
+## 三、提交前必须做的自测
+
+本项目的测试脚本全在 `tools/` 下，**不依赖任何测试框架**，直接 `node` 跑。
+
+默认 `npm test` 只跑**不需要真实服务**的纯测试（会自动跳过 `test-admin` / `smoke-test`）：
+
+| 命令 | 测什么 |
+|---|---|
+| `npm test` | 全量纯测试（推荐，干净 clone 也能跑） |
+| `npm run test:integration -- --base http://127.0.0.1:7864` | 集成测试：面板接口 + 端到端冒烟，**会改测试实例的配置** |
+| `node tools/test-admin.mjs --base http://127.0.0.1:7864` | 控制台接口（284 项，必须显式指定测试实例） |
+| `node tools/test-max-tokens.mjs` | 推理预算改写规则（47 项单元测试） |
+| `node tools/test-model-probe.mjs` | 模型可用性探测（41 项单元测试） |
+| `node tools/test-free-port.mjs` | 启动前的端口清理（8 项，真起进程：死占用要清、健康实例不许动、保留端口范围要解释） |
+| `node tools/test-account-bundle.mjs` | 换电脑的账号搬运包（76 项，临时目录里跑：加密往返 / 口令错与篡改必须失败 / 续期链合并规则 / 导回原机器不产生假身份 / 备份只留最新 3 份） |
+| `node tools/test-backup-prune.mjs` | 搬运包与导入备份的清理（30 项，真跑两个 CLI：不许为了"干净"先清一遍、刚写的那份必须保住、删的是最老的、`--check` 一个字节不写） |
+| `node tools/test-discover-switch.mjs` | 「要不要扫本机」开关 `discover.enabled`（12 项，正反两面对照：开着能扫到假 home 里的号 / 关掉后连本机真实安装目录一个都不读 / 关掉后手工上游照旧转发 / 拨回去能恢复） |
+| `node tools/test-tps.mjs` | 日志里 `tps`（输出 token/秒）的算法（11 项：只用 `completion_tokens` 不掺提示词 / 分母从首字算起 / 窗口太短给 `null` 而不是 0 / 缺数据不猜） |
+| `node tools/test-logfmt.mjs` | 对话日志一行式格式（17 项：字段顺序 / 缺值一律 `-` / UA 里的换行与引号不许把一行拆开 / 超长截断 / `::ffff:` 前缀剥掉 / 重试才出现 `try=N`） |
+| `node tools/test-logger.mjs` | 日志落盘与滚动（16 项：留 3 代历史 / 本机时间列 vs UTC 的 `ts` / `keepRecent` 裁剪 / debug 按级别挡 / 序号单调递增 / `getLogsSince()` 只回新行、无新增回空、序号倒退回尾部） |
+| `node tools/diag-fresh-clone.mjs` | 用 `git ls-files` 精确模拟一次 `git clone`，在空目录里起服务 |
+| `node tools/diag-admin-auth.mjs` | 面板鉴权（无口令 / 对口令 / 错口令 / `?token=`） |
+| `node tools/diag-local-daily.mjs` | 七个菜单的真实接口 + 面板调的路径是否都存在 |
+
+**改了哪块就至少跑对应用例。** 涉及面板的改动，先在测试实例上跑
+`npm run test:integration -- --base http://127.0.0.1:7864`，再跑 `diag-local-daily.mjs`。
+
+> ⚠️ **新增文件记得先 `git add`。** `diag-fresh-clone.mjs` 是用 `git ls-files` 精确模拟
+> `git clone` 的，未跟踪的文件不在它的清单里 —— 于是"本机能跑"和"别人 clone 下来能跑"
+> 会分叉。实测踩过：`src/bundle.mjs` 没 `git add`，仿真里服务直接
+> `ERR_MODULE_NOT_FOUND`，也就是别人拉下来根本起不来。
+
+> ⚠️ `tools/stress-deep41.mjs` 会**真花积分**，不是必跑的，别在 PR 里长期开着。
+
+---
+
+## 四、提 PR 的流程
+
+### 1. Fork
+
+打开 https://github.com/officejoker/officejoker ，点右上角 **Fork**。
+
+### 2. 建分支
+
+**不要直接改 `main`。**
+
+```bash
+git checkout -b fix/面板保存不生效
+```
+
+分支命名建议：
+
+| 前缀 | 用途 | 例子 |
+|---|---|---|
+| `fix/` | 修 bug | `fix/task-disabled-hang` |
+| `feat/` | 新功能 | `feat/account-import-qr` |
+| `docs/` | 只改文档 | `docs/english-readme` |
+| `refactor/` | 重构，不改行为 | `refactor/pool-rotation` |
+
+### 3. 提交
+
+提交信息建议**中文**，格式：
+
+```
+<类型>: <一句话说明>
+
+<为什么这么改，可选>
+```
+
+类型用 `fix` / `feat` / `docs` / `test` / `refactor` / `chore`。
+
+```bash
+git commit -m "fix: 端口被占用时启动白等 60 秒
+
+旧代码忽略了 EADDRINUSE 的退出码，直接进 30 次健康轮询。
+现在检查退出码并立刻报错退出。"
+```
+
+### 4. 推到你自己的 fork
+
+```bash
+git push origin fix/面板保存不生效
+```
+
+### 5. 开 PR
+
+GitHub 会自动弹出 **Compare & pull request** 横幅，点它，按模板把信息填全。
+
+---
+
+## 五、PR 的合并判断标准
+
+维护者会重点看：
+
+1. **有没有引入 npm 依赖** —— 有就直接拒
+2. **有没有把 `data/` 或 `logs/` 里的东西带进来** —— 有就要求清理
+3. **有没有引入 Windows 专属脚本或路径** —— 有就要求改
+4. **相关自测脚本有没有跑通** —— 没跑通会要求补
+5. **改动范围** —— 一个 PR 只做一件事，别把三个不相干的修改混在一起
+6. **有没有破坏向后兼容** —— 改了 `config.json` 的字段名要说明迁移方式
+
+---
+
+## 六、只提 Issue 也行
+
+不会写代码完全没问题。反馈问题和提建议同样是贡献：
+
+- **使用问题 / 配置求助 / 随便聊聊** → 去
+  [Discussions](https://github.com/officejoker/officejoker/discussions)，
+  这类内容不适合开 Issue。
+- **报 Bug** → 用 [Bug 报告](https://github.com/officejoker/officejoker/issues/new?template=bug_report.md) 模板，
+  里面要求的信息（`docker logs officejoker` 输出片段、复现步骤）尽量填全，
+  否则很难定位。
+- **提建议** → 用 [功能建议](https://github.com/officejoker/officejoker/issues/new?template=feature_request.md) 模板。
+
+> 💡 报 bug 时**务必先脱敏**：`logs/server.log` 和 `config.json` 里可能有
+> 面板口令、账号 ID、网关地址。贴出来之前先把这些替换成 `xxx`。
+
+---
+
+## 七、报告安全问题
+
+如果发现的是**安全漏洞**（比如凭据泄漏、鉴权绕过、路径穿越），
+**请不要开公开 Issue** —— 那等于把漏洞告诉了所有人。
+
+请通过 GitHub 的
+[Private vulnerability reporting](https://github.com/officejoker/officejoker/security/advisories/new)
+私下报告，或者发邮件给维护者。
+
+---
+
+再次感谢！🎉

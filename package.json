@@ -1,0 +1,20 @@
+{
+  "name": "officejoker",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "officejoker —— 模型网关反代（Linux 容器版，amd64 + arm64），把上游模型网关暴露成标准 OpenAI /v1 接口",
+  "main": "src/index.mjs",
+  "scripts": {
+    "start": "node src/index.mjs",
+    "dev": "node --watch src/index.mjs",
+    "dump": "node tools/dump-cred.mjs",
+    "smoke": "node tools/smoke-test.mjs",
+    "test": "node tools/run-tests.mjs",
+    "test:integration": "node tools/run-tests.mjs --integration",
+    "test:all": "node tools/run-tests.mjs --all"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
