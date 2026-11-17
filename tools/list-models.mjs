@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 列出当前服务暴露的模型
- *   node tools/list-models.mjs [--base http://127.0.0.1:7864] [--key sk-officeace] [--json]
+ *   node tools/list-models.mjs [--base http://127.0.0.1:7864] [--key sk-officejoker] [--json]
  */
 
 import fs from 'node:fs';
@@ -23,7 +23,7 @@ const opt = (name, fallback) => {
 };
 
 const base = opt('--base', `http://${config.listen?.host || '127.0.0.1'}:${config.listen?.port || 7864}`);
-const key = opt('--key', config.apiKeys?.[0] || 'sk-officeace');
+const key = opt('--key', config.apiKeys?.[0] || 'sk-officejoker');
 
 try {
   const res = await fetch(`${base}/v1/models`, { headers: { Authorization: `Bearer ${key}` } });

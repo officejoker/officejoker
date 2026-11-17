@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const KEY = 'sk-officeace';
+const KEY = 'sk-officejoker';
 const LOCAL = 'http://127.0.0.1:7864';
 
 function credFromModelsJson() {

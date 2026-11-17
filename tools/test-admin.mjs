@@ -58,7 +58,7 @@ console.log('== 面板接口自测 ==\n');
 console.log('[页面]');
 {
   const r = await call('/admin');
-  if (r.status === 200 && r.text.includes('officeace2api') && r.text.includes('对话测试台')) {
+  if (r.status === 200 && r.text.includes('officejoker') && r.text.includes('对话测试台')) {
     ok('/admin 返回控制台页面', `${r.text.length} 字节`);
   } else {
     bad('/admin', `HTTP ${r.status}, ${r.text.length} 字节`);
@@ -157,14 +157,14 @@ console.log('\n[模型别名]');
   if (r.status === 200 && r.json?.models?.some((m) => m.id === 'gpt-4o')) ok('写入别名', 'gpt-4o → glm-5.2, claude-sonnet-4 → glm-5.3');
   else bad('写入别名', `HTTP ${r.status} ${r.text.slice(0, 160)}`);
 
-  const list = await call('/v1/models', { key: 'sk-officeace' });
+  const list = await call('/v1/models', { key: 'sk-officejoker' });
   const ids = (list.json?.data || []).map((m) => m.id);
   if (ids.includes('gpt-4o')) ok('/v1/models 里出现别名', `共 ${ids.length} 个`);
   else bad('/v1/models 别名', '未出现 gpt-4o');
 
   const chat = await fetch(base + '/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sk-officeace' },
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sk-officejoker' },
     body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'user', content: '只回复：别名通' }], max_tokens: 24 }),
   });
   const doc = await chat.json();
@@ -214,13 +214,13 @@ console.log('\n[别名改了之后，旧的「模型不行」标记要作废]');
    * 必须作废。这里用两步复现：先让别名指向一个确定打不通的模型，把标记打上，
    * 再改指能用的，然后检查 `gpt-4o` 有没有回来。
    */
-  const before = await call('/v1/models', { key: 'sk-officeace' });
+  const before = await call('/v1/models', { key: 'sk-officejoker' });
 
   // ① 别名指向一个打不通的模型，然后真打一次，把"不行"的标记打上
   await call('/admin/api/models', { method: 'POST', body: { alias: { 'gpt-4o': 'glm-5.3-zx' }, hidden: [], extra: [] } });
   const hit = await fetch(base + '/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sk-officeace' },
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sk-officejoker' },
     body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'user', content: 'hi' }], max_tokens: 8 }),
   });
   const hitDoc = await hit.json().catch(() => ({}));
@@ -245,7 +245,7 @@ console.log('\n[别名改了之后，旧的「模型不行」标记要作废]');
 
   // ② 改指能用的模型 —— gpt-4o 必须能用，且立刻回到 /v1/models
   await call('/admin/api/models', { method: 'POST', body: { alias: { 'gpt-4o': 'glm-5.2' }, hidden: [], extra: [] } });
-  const after = await call('/v1/models', { key: 'sk-officeace' });
+  const after = await call('/v1/models', { key: 'sk-officejoker' });
   const ids = (after.json?.data || []).map((m) => m.id);
   if (ids.includes('gpt-4o')) ok('别名改指能用的模型后，gpt-4o 立刻在列表里', '旧标记已作废');
   else bad('别名改指能用的模型后 gpt-4o 还是消失的', '旧目录的「模型不行」标记没被清掉');
@@ -258,7 +258,7 @@ console.log('\n[别名改了之后，旧的「模型不行」标记要作废]');
   // 改指之后真打一发，确认真的能用
   const hit2 = await fetch(base + '/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sk-officeace' },
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sk-officejoker' },
     body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'user', content: '回一个字' }], max_tokens: 8 }),
   });
   const doc2 = await hit2.json().catch(() => ({}));
@@ -267,7 +267,7 @@ console.log('\n[别名改了之后，旧的「模型不行」标记要作废]');
 
   // 还原
   await call('/admin/api/models', { method: 'POST', body: { alias: {}, hidden: [], extra: [] } });
-  const restored = await call('/v1/models', { key: 'sk-officeace' });
+  const restored = await call('/v1/models', { key: 'sk-officejoker' });
   if ((restored.json?.data || []).length === (before.json?.data || []).length) ok('模型列表已还原');
   else bad('模型列表没还原', `${(before.json?.data || []).length} → ${(restored.json?.data || []).length}`);
 }
@@ -365,7 +365,7 @@ console.log('\n[刷新与统计]');
 {
   const r = await call('/admin/api/auth/app?force=1');
   if (r.status === 200 && typeof r.json?.found === 'boolean') {
-    ok('GET /admin/api/auth/app', r.json.found ? `发现 ${r.json.baseUrl} islogin=${r.json.islogin}` : '本机 OfficeAce 未运行');
+    ok('GET /admin/api/auth/app', r.json.found ? `发现 ${r.json.baseUrl} islogin=${r.json.islogin}` : '上游网关 未运行');
   } else bad('GET /admin/api/auth/app', `HTTP ${r.status}`);
 }
 
@@ -381,9 +381,9 @@ console.log('\n[刷新与统计]');
     if (wellFormed) ok('POST /admin/api/auth/start', `state=${r.json.state} 参数完整`);
     else bad('POST /admin/api/auth/start', JSON.stringify(oa));
     await call('/admin/api/auth/cancel', { method: 'POST', body: { id: r.json.id } });
-  } else if (r.json?.error?.code === 'APP_NOT_FOUND' || /APP_NOT_FOUND|没找到本机 OfficeAce/.test(r.text || '')) {
+  } else if (r.json?.error?.code === 'APP_NOT_FOUND' || /APP_NOT_FOUND|没找到上游网关/.test(r.text || '')) {
     // 桌面端没开就没法发授权链接 —— 不是代码问题，明确标注跳过
-    ok('POST /admin/api/auth/start', '跳过：本机 OfficeAce 未运行（启动后可复测）');
+    ok('POST /admin/api/auth/start', '跳过：上游网关 未运行（启动后可复测）');
   } else {
     bad('POST /admin/api/auth/start', `HTTP ${r.status} ${r.text?.slice(0, 120)}`);
   }
@@ -602,21 +602,21 @@ console.log('\n[刷新与统计]');
 
 {
   // 解析器：跑一次假的订阅响应，验证「剩余 = 总额 − 已用」和过期条目剔除
-  const { summarizeSubscription } = await import('../src/quota.mjs');
+  const { summarizeSubscription, SKU_ATTR_POINTS } = await import('../src/quota.mjs');
   const now = Date.now();
   const future = new Date(now + 86400e3).toISOString();
   const past = new Date(now - 86400e3).toISOString();
   const s = summarizeSubscription({
     subscribe_status: 'SUBSCRIBED',
     skus: [{
-      sku_code: 'officeace.personal.package.standard',
+      sku_code: 'personal.package.standard',
       sku_name: '标准版',
       effective_time: past,
       expired_time: future,
       subscribe_status: 'SUBSCRIBED',
       quotas: [
-        { sku_attr_code: 'officeace_points', sku_value: '1000', current_value: '250', expired_time: future },
-        { sku_attr_code: 'officeace_points', sku_value: '999', current_value: '0', expired_time: past }, // 过期，应剔除
+        { sku_attr_code: SKU_ATTR_POINTS, sku_value: '1000', current_value: '250', expired_time: future },
+        { sku_attr_code: SKU_ATTR_POINTS, sku_value: '999', current_value: '0', expired_time: past }, // 过期，应剔除
         { sku_attr_code: 'online_search_count', sku_value: '500', current_value: '120', expired_time: future },
       ],
     }],
@@ -756,7 +756,7 @@ console.log('\n[刷新与统计]');
   if (pick.token === 'tok-new' && pick.source === 'rotated') ok('pickToken：磁盘 token 未变时用轮换后的');
   else bad('pickToken：磁盘 token 未变时用轮换后的', JSON.stringify(pick));
 
-  // 磁盘上那份变成别的值了 = OfficeAce 自己重新登录、写了份新的 → 跟磁盘走
+  // 磁盘上那份变成别的值了 = 上游重新登录、写了份新的 → 跟磁盘走
   const pick2 = st.pickToken(fullId, 'tok-changed-by-app');
   if (pick2.token === 'tok-changed-by-app') ok('pickToken：磁盘 token 换新了就跟着换');
   else bad('pickToken：磁盘 token 换新了就跟着换', JSON.stringify(pick2));
@@ -1412,7 +1412,7 @@ console.log('\n[刷新与统计]');
 }
 
 {
-  // 自助登录：不依赖 OfficeAce 桌面端的那条链路
+  // 自助登录：不依赖 上游网关的那条链路
   const { generatePkce, buildAuthorizeUrl, LoginSessions } = await import('../src/oauth.mjs');
   const { toAccountRecord } = await import('../src/accounts.mjs');
 

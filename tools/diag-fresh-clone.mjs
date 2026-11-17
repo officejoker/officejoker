@@ -88,14 +88,14 @@ try {  // git archive 输出 tar，再解开
    * 把「用户目录」也沙箱掉 —— 不然这个测试是假的。
    *
    * 第一次跑就露馅了：新目录里的服务照样发现了 **我这台机器上** 的
-   * OfficeAce（`%USERPROFILE%\.office-claw\...`），因为它找凭据时是
+   * officejoker（`%USERPROFILE%\.office-claw\...`），因为它找凭据时是
    * 从 `home()` 开始找的，而 `home()` 跟着 `USERPROFILE` 走。
    * 那样测出来的"能跑"是蹭了我自己的号，对新用户毫无参考价值。
    *
    * ⚠️ 有个位子沙箱不掉：`discover.mjs` 还会硬扫
-   *    `<系统盘>\软件\OfficeAce\.office-claw`、`<安装盘>\OfficeAce\.office-claw`、
+   *    `<系统盘>\软件\officejoker\.office-claw`、`<安装盘>\officejoker\.office-claw`、
    *    `Program Files\...` 这些固定位置（那些路径是写死在代码里的）。
-   *    所以在这台装了 OfficeAce 的机器上，**没法完全模拟"什么都没装"** ——
+   *    所以在这台装了 上游网关的机器上，**没法完全模拟"什么都没装"** ——
    *    那部分只能靠下面「零凭据时的行为」那几条间接看。
    *    `%USERPROFILE%\.office-claw`（本机那 2 个号的真正来源）是沙箱得掉的。
    */
@@ -174,10 +174,10 @@ try {  // git archive 输出 tar，再解开
     if (hz.credentials === 0 && hz.accounts === 0) {
       ok('如实报告"零凭据"（没有假装健康，也没有崩）');
     } else {
-      note(`这台机器上还能发现到 ${hz.credentials} 条凭据 —— 说明它读到了本机 OfficeAce 的残留`);
+      note(`这台机器上还能发现到 ${hz.credentials} 条凭据 —— 说明它读到了上游网关 的残留`);
     }
 
-    const lm = await fetch(`${BASE}/v1/models`, { headers: { Authorization: 'Bearer sk-officeace' } });
+    const lm = await fetch(`${BASE}/v1/models`, { headers: { Authorization: 'Bearer sk-officejoker' } });
     const lmBody = await lm.json().catch(() => null);
     note(`/v1/models（零凭据时）→ HTTP ${lm.status}${lmBody?.error ? `  ${lmBody.error.code || lmBody.error.message}` : `  ${lmBody?.data?.length} 个`}`);
     if (lm.status === 200 || lm.status === 503 || lm.status === 401) {
@@ -192,7 +192,7 @@ try {  // git archive 输出 tar，再解开
     // LoginFlow，它自己拼授权链接（PKCE）+ 轮询云端取 code + DPoP 换 token。
     // 需要本机桌面端的是另一条路 `authflow.mjs`（`/admin/api/auth/*`，注册流水线在用），
     // 别把两者搞混 —— 这两条我在文档里写反过一次。
-    console.log('\n【5】「自己加自己的号」这条路通不通（不用装 OfficeAce 桌面端）');
+    console.log('\n【5】「自己加自己的号」这条路通不通（不用装 上游网关）');
     const cfg = JSON.parse(readFileSync(path.join(dir, 'config.json'), 'utf8'));
     const T = cfg.admin.token;
 

@@ -1,7 +1,7 @@
 /**
  * 凭据自动续期：用 refresh_token 换一套新的临时 AK/SK
  *
- * 为什么需要它：OfficeAce 发的临时 AK/SK 只有 24 小时寿命，过期后整个反代就哑了。
+ * 为什么需要它：officejoker 发的临时 AK/SK 只有 24 小时寿命，过期后整个反代就哑了。
  * 但同一份档案里的 refresh_token 能活 30 天 —— 拿它去 IAM 换新的 AK/SK，
  * 就能让服务连续跑一个月不用人工重新登录。
  *
@@ -27,8 +27,8 @@
  *
  * ⚠️ refresh_token 是**一次性轮换**的：用掉之后旧的就废了（重放会得到
  *    STS5.1806 "the refresh token has been used"）。所以新 token 必须落盘。
- *    本模块把轮换结果存在自己的 data/refresh-state.json 里，**不改 OfficeAce 的任何文件**；
- *    同时用「上次消费的是哪个 token」来判断该信谁 —— 如果 OfficeAce 自己换成新的了，
+ *    本模块把轮换结果存在自己的 data/refresh-state.json 里，**不改 上游网关的任何文件**；
+ *    同时用「上次消费的是哪个 token」来判断该信谁 —— 如果 上游换成新的了，
  *    我们发现自己记的和磁盘上的不一致，就以磁盘为准（说明是 App 换的）。
  */
 
@@ -221,7 +221,7 @@ export class RefreshState {
   /**
    * 决定这次该用哪个 refresh_token。
    *
-   * 背景：磁盘上的档案是**只读**的（OfficeAce 自己不刷新它），所以那里的 token
+   * 背景：磁盘上的档案是**只读**的（上游不刷新它），所以那里的 token
    * 永远是最初那份 T0；而我们每换一次，云端就把上一份作废。
    *
    * 关键点：**磁盘上那一份 token 一辈子只会被我们消费一次**，就是第一次用它的
@@ -248,7 +248,7 @@ export class RefreshState {
 
     // 1) 磁盘上这份是新鲜的
     //    - 从没记过 → 全新记录，磁盘那份没人动过
-    //    - 跟我们消费过的那份不一样 → OfficeAce 自己重新登录，写了份新的
+    //    - 跟我们消费过的那份不一样 → 上游重新登录，写了份新的
     if (diskToken && !unusable.has(diskToken)) {
       if (!diskKnown) return { token: diskToken, source: 'disk' };
       if (diskToken !== diskKnown) return { token: diskToken, source: 'disk-renewed' };
@@ -433,7 +433,7 @@ export class RefreshState {
    * 所以这里要把「作废」标记清掉；不清的话它会被 `pickToken` 里那条
    * `dead.has(token)` 一票否决，用户会觉得「重登了还是不能用」。
    *
-   * 只改我们自己的 data/refresh-state.json，不碰 OfficeAce 的任何文件。
+   * 只改我们自己的 data/refresh-state.json，不碰 上游网关的任何文件。
    */
   rearm(accountId, refreshToken, { reason = 'new-login', refreshExpiresAt = 0, previousDiskToken = '' } = {}) {
     const token = String(refreshToken || '').trim();
@@ -575,7 +575,7 @@ export class CredentialRefresher {
       // 所以直接说清楚：这个号得重新登录一次。
       return {
         ok: false,
-        error: 'refresh_token 已经全部作废（磁盘那份和轮换那份都被用过了），需要重新登录一次 OfficeAce 或走一遍自助登录',
+        error: 'refresh_token 已经全部作废（磁盘那份和轮换那份都被用过了），需要重新登录一次 上游网关或走一遍自助登录',
         errorCode: 'NO_USABLE_TOKEN',
       };
     }
@@ -631,7 +631,7 @@ export class CredentialRefresher {
         this.state.breakChain(accountId, code, pick.token);
         return {
           ok: false,
-          error: `refresh_token 已被使用过（${code}）。已经换用下一份；如果还失败就得重新登录一次 OfficeAce`,
+          error: `refresh_token 已被使用过（${code}）。已经换用下一份；如果还失败就得重新登录一次 officejoker`,
           errorCode: 'TOKEN_CONSUMED',
         };
       }

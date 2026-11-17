@@ -170,7 +170,7 @@ function upstreamHeaders(credential, { stream = true, extraHeaders = {} } = {}) 
   return {
     'Content-Type': 'application/json',
     Accept: stream ? 'text/event-stream' : 'application/json',
-    'User-Agent': 'OfficeAce/1.0 (officejoker)',
+    'User-Agent': 'officejoker/1.0 (officejoker)',
     ...credential.headers,
     ...extraHeaders,
   };

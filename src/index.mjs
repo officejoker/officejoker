@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * officejoker —— 把本机 OfficeAce（果办）客户端的模型网关反代成标准 OpenAI 接口
+ * officejoker —— 把上游模型网关的模型网关反代成标准 OpenAI 接口
  *
  *   node src/index.mjs [--config ./config.json] [--dump]
  */
@@ -218,7 +218,7 @@ const authFlow = new AuthFlow({
 });
 
 /**
- * 自助登录：自己跑 OAuth，不依赖 OfficeAce 桌面端。
+ * 自助登录：自己跑 OAuth，不依赖 上游网关。
  * 登录成功后账号直接进号池，并重建连接池。
  */
 const loginFlow = new LoginFlow({
@@ -454,7 +454,7 @@ if (pool.size === 0) {
    * 零凭据时的引导。
    *
    * ⚠️ 这段文字改过三次，把弯路记下来，免得第四次又写反：
-   *   1. 最早写「请先登录并运行一次 OfficeAce 桌面端」—— 对没装桌面端的人是死胡同；
+   *   1. 最早写「请先登录并运行一次 上游网关」—— 对没装桌面端的人是死胡同；
    *   2. 后来改成「面板自助登录不需要桌面端」，这句其实**是对的**（登录走 src/oauth.mjs：
    *      自己拼授权链接 + 轮询云端取 code + DPoP 换 token，全程不碰桌面端）；
    *   3. 中间我自己把它改错了一次，以为自助登录要调桌面端 —— 那是 `authflow.mjs`
@@ -463,14 +463,14 @@ if (pool.size === 0) {
    * 所以现在的顺序是：先推「不依赖任何桌面端」的自助登录，再提桌面端（能自动抠号），
    * 最后才是手工导入和「干脆当通用反代」。
    */
-  log.warn('未发现任何凭据：打开控制台点「换个账号登录」即可（不需要装 OfficeAce 桌面端）');
+  log.warn('未发现任何凭据：打开控制台点「换个账号登录」即可（不需要装 上游网关）');
   console.log('');
   console.log('  ────────────────────────────────────────────────');
   console.log('  ⚠️  现在一个可用的号都没有，反代没法转发任何请求。');
   console.log('     下一步（任选一条）：');
   console.log('       ① 打开控制台 →「号池」页 → 点「换个账号登录」，用你自己的');
-  console.log('          账号登录一次就行（不需要装 OfficeAce 桌面端）。');
-  console.log('       ② 已经装过 OfficeAce：登录它、发一次对话，再重启本服务，');
+  console.log('          账号登录一次就行（不需要装 上游网关）。');
+  console.log('       ② 已经装过 officejoker：登录它、发一次对话，再重启本服务，');
   console.log('          会自动把凭据抠出来。');
   console.log('       ③ 你已经有 baseUrl + Authorization：控制台 →「号池」→「导入账号」贴进去。');
   console.log('       ④ 只想把它当通用 OpenAI 反代：config.json 里填 upstream.baseUrl +');
@@ -588,7 +588,7 @@ const regTimer = setInterval(async () => {
 }, regMs);
 regTimer.unref?.();
 
-// 后台探一次本机 OfficeAce，方便面板一打开就有状态
+// 后台探一次上游网关，方便面板一打开就有状态
 authFlow.detectApp().catch(() => {});
 
 // 周期任务：刷新所有账号的积分额度

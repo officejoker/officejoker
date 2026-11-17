@@ -7,7 +7,7 @@
  * 修完之后应该是：413 + code=request_too_large + 只打一次上游。
  */
 const BASE = process.env.O2A_BASE || 'http://127.0.0.1:7864';
-const KEY = process.env.O2A_KEY || 'sk-officeace';
+const KEY = process.env.O2A_KEY || 'sk-officejoker';
 const MODEL = 'deepseek-v4.1-flash';
 
 const filler = '这是一段用于把请求撑爆的填充文本。'.repeat(40);

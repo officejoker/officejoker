@@ -16,7 +16,7 @@ const store = new AccountStore({ dataFile: path.join(ROOT, 'data', 'accounts.jso
 store.load();
 store.scan();
 const acc0 = [...store.accounts.values()][0];
-if (!acc0) { console.log('号池是空的，先登录一次 OfficeAce'); process.exit(1); }
+if (!acc0) { console.log('号池是空的，先登录一次 officejoker'); process.exit(1); }
 
 const state = new RefreshState(path.join(ROOT, 'data', 'refresh-state.json'));
 const live = state.usableCredential(acc0.id);

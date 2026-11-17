@@ -55,7 +55,7 @@ const DEFAULTS = {
     retryBackoffMs: 1200,
   },
   discover: {
-    // 要不要去扫这台机器上的 OfficeAce（`~/.office-claw`、各盘安装目录、安装目录里的
+    // 要不要去扫这台机器上的 officejoker（`~/.office-claw`、各盘安装目录、安装目录里的
     // 加密 OAuth 档案）。默认开；关掉之后账号来源只剩：`data/` 里自己登进来的、
     // 手工导入的、以及手工上游（`upstream.baseUrl`）。
     //
@@ -222,7 +222,7 @@ const DEFAULTS = {
     enabled: true,
     onlyEnabled: true, // 只把「已启用」账号的凭据喂给上游连接池
   },
-  // 一键授权：默认自动探测本机 OfficeAce API，留空走内置候选列表
+  // 一键授权：默认自动探测上游网关 API，留空走内置候选列表
   auth: {
     appApis: [],
     pollSeconds: 3,

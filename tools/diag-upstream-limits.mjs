@@ -14,7 +14,7 @@
  * 这个脚本把两条都摸出来。`max_tokens: 1` 让每发只花约 1 token，成本可以忽略。
  */
 const BASE = process.env.O2A_BASE || 'http://127.0.0.1:7864';
-const KEY = process.env.O2A_KEY || 'sk-officeace';
+const KEY = process.env.O2A_KEY || 'sk-officejoker';
 const MODEL = process.env.O2A_MODEL || 'deepseek-v4.1-flash';
 const H = { 'Content-Type': 'application/json', Authorization: `Bearer ${KEY}` };
 

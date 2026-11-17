@@ -1,7 +1,7 @@
 /**
  * 凭据 & 模型自动发现
  *
- * OfficeAce 桌面端把「上游模型网关的 api_base + Authorization」写进本机文件：
+ * 上游网关把「上游模型网关的 api_base + Authorization」写进本机文件：
  *   ~/.office-claw/.jiuwenclaw/config/routing_state/users/<uid>/models.json
  *   ~/.office-claw/relayclaw/jiuwenclaw/config/routing_state/users/<uid>/models.json
  *   <installRoot>/.office-claw/...（便携安装时）
@@ -29,7 +29,7 @@ const log = createLogger('discover');
  * `discover done` 这条 DEBUG 以前每轮无条件打，还带着三个 URL 编码的目录名
  * （`01a1239…%3A01a1239…`）—— 实测 34 分钟里同一条刷了 53 次，占全部日志的 23%。
  *
- * 现在按「扫到的文件集合有没有变」说话：变了（新装了一个 OfficeAce / 换了账号目录）
+ * 现在按「扫到的文件集合有没有变」说话：变了（新装了一个 officejoker / 换了账号目录）
  * 才打，并附带文件名；没变只留 5 分钟一条的心跳，且只报个数。
  */
 const DISCOVER_HEARTBEAT_MS = 5 * 60 * 1000;
@@ -45,7 +45,7 @@ const PLACEHOLDER_KEYS = new Set([
 ]);
 
 function candidateRoots() {
-  // `config.discover.enabled: false` → 不读这台机器上的任何 OfficeAce 目录。
+  // `config.discover.enabled: false` → 不读这台机器上的任何 officejoker 目录。
   // 这里和其它所有扫盘入口共用 util.mjs 里那一个开关（见 setMachineScanEnabled 的注释）。
   if (!isMachineScanEnabled()) return [];
   const roots = [];
@@ -53,12 +53,6 @@ function candidateRoots() {
   roots.push(path.join(h, '.office-claw'));
   if (process.env.OFFICEJOKER_INSTALL_DIR) {
     roots.push(path.join(process.env.OFFICEJOKER_INSTALL_DIR, '.office-claw'));
-  }
-  // 常见安装位置（便携版会把 .office-claw 放在安装目录下）
-  for (const drive of ['C', 'D', 'E']) {
-    for (const dir of ['软件', 'Program Files', 'Program Files (x86)']) {
-      roots.push(path.join(`${drive}:\\`, dir, 'OfficeAce', '.office-claw'));
-    }
   }
   return roots;
 }

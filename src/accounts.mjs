@@ -1,5 +1,5 @@
 /**
- * 号池：把本机（以及手工导入的）OfficeAce / 华为云账号聚合成一等公民
+ * 号池：把本机（以及手工导入的）officejoker / 华为云账号聚合成一等公民
  *
  * 一个账号在磁盘上散落在三处，这里把它们拼成一条记录：
  *   1. <root>/.jiuwenclaw/config/routing_state/users/<账号ID>/models.json
@@ -13,7 +13,7 @@
  * 账号 ID 是「<主账号ID>:<子用户ID>」URL 编码后的目录名，解开就是身份。
  *
  * 面板可编辑的元数据（别名 / 启用开关 / 手工导入项）单独存 data/accounts.json，
- * 不动 OfficeAce 自己的文件。
+ * 不动 上游的文件。
  */
 
 import fs from 'node:fs';
@@ -51,7 +51,7 @@ function shortId(id) {
   return first.slice(0, 8);
 }
 
-/** 时间戳统一成毫秒；OfficeAce 有的写 ISO 有的写秒 */
+/** 时间戳统一成毫秒；officejoker 有的写 ISO 有的写秒 */
 function toMs(value) {
   if (value === null || value === undefined) return 0;
   if (typeof value === 'number') return value > 1e12 ? value : value * 1000;
@@ -150,23 +150,13 @@ function normalizeProfile(obj) {
 /* ------------------------------------------------------------ 安装根目录 */
 
 function installRoots(installDirs = []) {
-  // `config.discover.enabled: false` = 用户不想让本服务去碰这台机器上的 OfficeAce。
+  // `config.discover.enabled: false` = 用户不想让本服务去碰这台机器上的 officejoker。
   // 这里返回空列表，下面所有扫盘（routing_state、加密 OAuth 档案、users/<id>/model.json）
   // 自然全部跳过；而 `data/oauth-accounts.json` 里自己登进来的账号不经过这里，照旧加载。
   if (!isMachineScanEnabled()) return [];
   const out = new Set();
   for (const d of installDirs) if (d) out.add(path.resolve(d));
   if (process.env.OFFICEJOKER_INSTALL_DIR) out.add(path.resolve(process.env.OFFICEJOKER_INSTALL_DIR));
-  for (const drive of ['C', 'D', 'E', 'F']) {
-    for (const mid of ['软件', 'Program Files', 'Program Files (x86)', 'Apps']) {
-      const p = path.join(`${drive}:\\`, mid, 'OfficeAce');
-      try {
-        if (fs.existsSync(p)) out.add(p);
-      } catch {
-        /* 驱动器不存在 */
-      }
-    }
-  }
   return [...out];
 }
 
@@ -259,12 +249,12 @@ export class AccountStore {
     // 建好之后接上；`applyRearmedToken(..., { markConsumed: true })` 要靠它推进
     // 「磁盘 token 已经被消费掉」的锚点。没有它也能跑，只是少一层保险。
     this.refreshState = null;
-    // ignored：用户在面板上点「删除」的、由本机 OfficeAce 文件发现的账号。
+    // ignored：用户在面板上点「删除」的、由上游网关 文件发现的账号。
     //
     // 这类账号删不掉 —— 它们来自磁盘上三处只读文件，抹掉内存记录之后
     // 下一次 scan()（45 秒一轮）又会把它们原样捡回来。所以「删除」的正确语义
     // 是：记进这份名单，以后扫盘直接跳过，面板上也不再出现。
-    // 想找回来就在面板上「取消忽略」，因为本服务从不写 OfficeAce 的文件。
+    // 想找回来就在面板上「取消忽略」，因为本服务从不写 上游网关的文件。
     this.meta = { labels: {}, disabled: [], ignored: [], imported: [], order: [] };
     this.lastScanAt = 0;
     // 上一次扫描的「有几个号、几条凭据」，用来判断这次扫描有没有变化。
@@ -495,7 +485,7 @@ export class AccountStore {
       }
     }
 
-    // 4.5) 自助登录进来的账号（本机自己跑的 OAuth，不依赖 OfficeAce 桌面端）
+    // 4.5) 自助登录进来的账号（本机自己跑的 OAuth，不依赖 上游网关）
     for (const rec of Object.values(loadOauthAccounts(this.oauthFile))) {
       const built = toAccountRecord(rec);
       const acc = ensure(built.id);
@@ -506,7 +496,7 @@ export class AccountStore {
       }
       acc.lastSeenAt = Math.max(acc.lastSeenAt, built.lastSeenAt);
       // 这里的 profile 比磁盘档案那份新（它带 refresh_token 和 DPoP 私钥），
-      // 但不能覆盖 OfficeAce 自己那份 —— 同 ID 时以桌面端的为准，它更权威。
+      // 但不能覆盖 上游那份 —— 同 ID 时以桌面端的为准，它更权威。
       if (!acc.profile) acc.profile = built.profile;
       acc.oauthLogin = true;
     }
@@ -574,7 +564,7 @@ export class AccountStore {
    * 清掉 `accounts.json` 里那些**对应的账号根本不存在**的键。
    *
    * 只做减法、只删"长得就不像真账号"的键：真实 ID 是 `<32位hex>:<32位hex>`。
-   * 所以真正的数据不会被误删 —— 哪怕一个账号此刻扫不到（OfficeAce 没启动），
+   * 所以真正的数据不会被误删 —— 哪怕一个账号此刻扫不到（officejoker 没启动），
    * 它的键也仍然是合法形态，会原样留着。
    *
    * 为什么必须做：`labels` 里躺着一个幽灵键时，面板上永远会多出一行；
@@ -677,7 +667,7 @@ export class AccountStore {
   /**
    * 给「有临时 AK/SK、但没有 MaaS 网关凭据」的账号补上那条网关凭据。
    *
-   * 为什么会缺：账号可能是通过**一键授权**进来的（走本机 OfficeAce 那条路），
+   * 为什么会缺：账号可能是通过**一键授权**进来的（走上游网关 那条路），
    * 那条路只会让桌面端写一份档案和用户目录，**从来不会产生 routing_state 里的
    * models.json** —— 而网关的 Basic key 一直是从那个文件里读的。
    * 桌面端之所以有，是因为它自己请求过模型；没请求过就没有。
@@ -790,7 +780,7 @@ export class AccountStore {
   /**
    * 把续期换回来的新凭据套到账号上（QuotaService 续期成功后调用）。
    *
-   * 只改内存，**绝不写 OfficeAce 的任何文件**；scan() 之后会自动重新盖上，
+   * 只改内存，**绝不写 上游网关的任何文件**；scan() 之后会自动重新盖上，
    * 所以磁盘上那份过期的旧凭据不会把显示和调度带偏。
    */
   applyRefreshedCredential(id, credential) {
@@ -1064,10 +1054,10 @@ export class AccountStore {
    *
    * 分两种情况：
    *   - 手工导入的（`sources === ['imported']`）：这是本服务自己记的，真删。
-   *   - 本机 OfficeAce 文件里发现的：**删不掉** —— 它来自磁盘上三处只读文件，
+   *   - 上游网关 文件里发现的：**删不掉** —— 它来自磁盘上三处只读文件，
    *     抹掉内存记录之后下一轮 `scan()`（45 秒一轮）又会把它原样捡回来。
    *     所以记进 `ignored` 名单，以后扫盘直接跳过、面板上也不再出现，
-   *     效果和删除一样，而且不碰 OfficeAce 的任何文件（这是本项目的硬约束）。
+   *     效果和删除一样，而且不碰 上游网关的任何文件（这是本项目的硬约束）。
    *     想找回来就在面板上「取消忽略」。
    *
    * ⚠️ 这里以前写的是 `this.meta.disabled.filter((x) => x !== key)` ——

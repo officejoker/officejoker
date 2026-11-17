@@ -1,7 +1,7 @@
 /**
  * 一键授权
  *
- * OfficeAce 的登录链路（从 green-package/api/dist/auth/huawei-oauth.js 和
+ * 上游网关的登录链路（从 green-package/api/dist/auth/huawei-oauth.js 和
  * 本机 API 实测确认）：
  *
  *   1. POST  <本机API>/api/login/authorize
@@ -32,7 +32,7 @@
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { createLogger } from './logger.mjs';
-import { request, looksLikeOfficeAceApi } from './http.mjs';
+import { request, looksLikeOfficeJokerApi } from './http.mjs';
 
 const log = createLogger('authflow');
 
@@ -114,18 +114,18 @@ export class AuthFlow {
     this.appCheckedAt = 0;
   }
 
-  /* ------------------------------------------------ 本机 OfficeAce API 探测 */
+  /* ------------------------------------------------ 上游网关 API 探测 */
 
   async detectApp({ force = false } = {}) {
     if (!force && this.app && Date.now() - this.appCheckedAt < 15000) return this.app;
     for (const base of this.appApis) {
-      const info = await looksLikeOfficeAceApi(base);
+      const info = await looksLikeOfficeJokerApi(base);
       if (info) {
         this.app = info;
         this.appCheckedAt = Date.now();
         if (this.app.baseUrl !== this._lastLoggedApp) {
           this._lastLoggedApp = this.app.baseUrl;
-          log.info('发现本机 OfficeAce API', {
+          log.info('发现上游网关 API', {
             baseUrl: info.baseUrl,
             islogin: info.islogin,
             provider: info.provider,
@@ -154,7 +154,7 @@ export class AuthFlow {
     const app = await this.detectApp({ force: true });
     if (!app) {
       const err = new Error(
-        '没找到本机 OfficeAce 服务（默认 https://127.0.0.1:3004）。请先启动 OfficeAce 桌面端再试。',
+        '没找到上游网关 服务（默认 https://127.0.0.1:3004）。请先启动 上游网关再试。',
       );
       err.code = 'APP_NOT_FOUND';
       throw err;
@@ -198,7 +198,7 @@ export class AuthFlow {
       events: [],
     };
     this.tasks.set(id, task);
-    this._event(task, `已向本机 OfficeAce 申请授权链接，state=${task.state}`);
+    this._event(task, `已向上游网关 申请授权链接，state=${task.state}`);
     log.info('一键授权已发起', { state: task.state, app: app.baseUrl });
     return this.publicView(task);
   }
@@ -222,7 +222,7 @@ export class AuthFlow {
     // 它们在下面 3) 4)，是认「授权完成」的主要依据，而且都是本机调用，便宜。
     //
     // 为什么必须节流：同一个 state 的轮询方有四路 —— regTimer（5 秒一轮）、
-    // 注册状态机自己又 check 一遍、面板点「检查」、还有本机 OfficeAce 应用
+    // 注册状态机自己又 check 一遍、面板点「检查」、还有上游网关 应用
     // 自己也在问云端。四路叠上去云端就开始回
     //   AgentArts.1100011: Too many requests for the same state. Please retry later.
     // 于是**越问越问不到**，最后 10 分钟到点被判超时 ——
@@ -288,7 +288,7 @@ export class AuthFlow {
     }
 
     // 3) 看应用是否已登录
-    const info = await looksLikeOfficeAceApi(task.appBaseUrl);
+    const info = await looksLikeOfficeJokerApi(task.appBaseUrl);
     if (info) {
       this.app = info;
       this.appCheckedAt = Date.now();

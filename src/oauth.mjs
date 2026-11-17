@@ -1,15 +1,15 @@
 /**
- * 自助登录：不依赖 OfficeAce 桌面端，自己把华为账号登录跑完并接入号池。
+ * 自助登录：不依赖 上游网关，自己把华为账号登录跑完并接入号池。
  *
  * 为什么要自己实现
  * ----------------
- * 原来的「一键授权」是去问本机 OfficeAce 要链接（`POST /api/login/authorize`）。
+ * 原来的「一键授权」是去问上游网关 要链接（`POST /api/login/authorize`）。
  * 这有两个问题：
  *   1. 桌面端必须开着 —— 桌面端占用回调端口时
  *      它的监听端口还是随机的，写死 3004 本来就不靠谱；
  *   2. 桌面端一关，整个导入功能就废了。
  *
- * 而 OfficeAce 本身走的就是一条标准的 OAuth 授权码 + PKCE 流程，客户端能做，
+ * 而 officejoker 本身走的就是一条标准的 OAuth 授权码 + PKCE 流程，客户端能做，
  * 我们也能做。链路的每一环都是从它自己的实现里读出来的：
  *
  *   packages/green-package/api/dist/auth/huawei-oauth.js     createAuthorizationRequest / exchangeCode
@@ -44,7 +44,7 @@ const DEFAULT_CLOUD_BASE = 'https://agentarts.cn-southwest-2.myhuaweicloud.com';
 const DEFAULT_AUTH_BASE = 'https://auth.huaweicloud.com';
 const DEFAULT_REDIRECT_URI = `${DEFAULT_CLOUD_BASE}/v1/claw/auth/callback`;
 
-/** 登录会话的存活时间，和 OfficeAce 的 DEFAULT_STATE_TTL_MS 保持一致 */
+/** 登录会话的存活时间，和 上游网关的 DEFAULT_STATE_TTL_MS 保持一致 */
 const LOGIN_TTL_MS = 10 * 60 * 1000;
 /** 轮询授权码的间隔 */
 const POLL_INTERVAL_MS = 2500;
@@ -92,7 +92,7 @@ async function generateDpopKeyPair() {
   };
 }
 
-/** 按 OfficeAce 的写法拼授权地址 */
+/** 按 上游网关的写法拼授权地址 */
 export function buildAuthorizeUrl({ authBase = DEFAULT_AUTH_BASE, clientId = DEFAULT_CLIENT_ID, state, challenge, redirectUri = DEFAULT_REDIRECT_URI }) {
   const params = new URLSearchParams({
     client_id: clientId,

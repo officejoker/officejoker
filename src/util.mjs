@@ -153,11 +153,11 @@ export function shouldRevealInExplorer({
 /* ---------------------------------------------------------- 「要不要扫这台机器」 */
 
 /**
- * 「去不去读本机 OfficeAce 的凭据」的总开关，对应 `config.discover.enabled`（默认开）。
+ * 「去不去读上游网关 的凭据」的总开关，对应 `config.discover.enabled`（默认开）。
  *
  * 为什么需要它 —— 原先只有 `upstream.autoDiscover: false`，而它**只关掉定时重扫**，
  * 启动扫描照跑。于是：
- *   · 想把这项目当通用 OpenAI 反代用的人，本机装过 OfficeAce 的话，那些账号会被
+ *   · 想把这项目当通用 OpenAI 反代用的人，本机装过 上游网关的话，那些账号会被
  *     悄悄捞进号池（他本来就没打算用它们）；
  *   · 写测试时也没法隔离 —— 临时实例照样读得到本机真实账号，甚至会替它们续期，
  *     那是在动用户的真凭据（实测踩到过：临时实例扫到 3 个真号）。
@@ -165,7 +165,7 @@ export function shouldRevealInExplorer({
  * 开关放在这里而不是各模块各存一份，是因为 `accounts.mjs`（号池扫盘）和
  * `discover.mjs`（另一套读盘逻辑）必须认同一个值，两份状态迟早会漂。
  *
- * 关掉之后：`~/.office-claw`、各盘 `<盘>:\软件\OfficeAce\.office-claw`、
+ * 关掉之后：`~/.office-claw`、各盘 `<盘>:\软件\officejoker\.office-claw`、
  * `OFFICEJOKER_INSTALL_DIR` 一律不再读；`data/oauth-accounts.json` 里自己登进来的
  * 账号、手工导入的账号、手工上游照旧工作。
  */

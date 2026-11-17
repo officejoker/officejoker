@@ -9,7 +9,7 @@
 import { adminHeaders } from './adminToken.mjs';
 
 const BASE = process.env.O2A_BASE || 'http://127.0.0.1:7864';
-const KEY = process.env.O2A_KEY || 'sk-officeace';
+const KEY = process.env.O2A_KEY || 'sk-officejoker';
 const MODEL = 'deepseek-v4.1-flash';
 
 /* ---- 从本服务拿一条上游凭据，好做直连对照 ---- */

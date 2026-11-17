@@ -29,7 +29,7 @@ import { adminHeaders } from './adminToken.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
 const BASE = process.env.O2A_BASE || 'http://127.0.0.1:7864';
-const KEY = process.env.O2A_KEY || 'sk-officeace';
+const KEY = process.env.O2A_KEY || 'sk-officejoker';
 const MODEL = process.env.O2A_MODEL || 'deepseek-v4.1-flash';
 
 const arg = (name, dflt) => {

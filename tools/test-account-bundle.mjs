@@ -69,7 +69,7 @@ const NOW = Date.parse('2026-10-19T10:00:00Z');
 const ACC_A = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:11111111111111111111111111111111';
 const ACC_B = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:22222222222222222222222222222222';
 const ACC_C = 'cccccccccccccccccccccccccccccccc:33333333333333333333333333333333';
-// 号池扫盘还会发现**这台机器上真实的** OfficeAce 账号（candidateRoots 是写死的盘符），
+// 号池扫盘还会发现**这台机器上真实的** officejoker 账号（candidateRoots 是写死的盘符），
 // 所以下面凡是数数的断言都只看这三个假 ID，测试结果不依赖跑在哪台机器上。
 const FAKE = new Set([ACC_A, ACC_B, ACC_C]);
 const fakesOf = (ids) => ids.filter((id) => FAKE.has(id));
@@ -137,7 +137,7 @@ function sourceData() {
         broken: false,
       },
     },
-    // 号池里还有一个「本机 OfficeAce 文件发现的」号：只能转发，没有 refresh_token
+    // 号池里还有一个「上游网关 文件发现的」号：只能转发，没有 refresh_token
     accounts: [
       {
         id: ACC_A,
@@ -202,7 +202,7 @@ eq('收集到 2 个可搬的号（B 没有 refresh_token 但仍有长期 Basic �
 /* ------------------------ 1b. 档案里的 refresh_token 死了，扫盘那份还活着吗 */
 
 {
-  // 真实踩到的场景：OfficeAce 客户端和服务抢同一条一次性链，客户端赢了，
+  // 真实踩到的场景：上游网关和服务抢同一条一次性链，客户端赢了，
   // 我们档案里那份进了黑名单（STS5.1806）。这时候导出如果照抄档案，
   // 包搬到新机器上必然续不上 —— 用户白重登一次，正是「换电脑」要消灭的事。
   const acctId = ACC_A.split(':')[0];
@@ -337,7 +337,7 @@ eq('空机器导入：全部 action=added', emptyMerge.results.map((r) => r.acti
 }
 {
   const c = emptyMerge.meta.imported.find((x) => x.id === ACC_C);
-  if (c && c.baseUrl === 'https://gw.example.com/v2' && c.authorization.startsWith('Basic ')) ok('C 进 meta.imported，新机器没装 OfficeAce 也能转发');
+  if (c && c.baseUrl === 'https://gw.example.com/v2' && c.authorization.startsWith('Basic ')) ok('C 进 meta.imported，新机器没装 officejoker 也能转发');
   else bad('C 进 meta.imported', JSON.stringify(c || null));
   if (emptyMerge.meta.disabled.includes(ACC_C)) ok('C 的停用状态并进 meta.disabled');
   else bad('C 的停用状态并进 meta.disabled');

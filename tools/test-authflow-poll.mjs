@@ -4,7 +4,7 @@
  *
  * 为什么值得单独一条测试：这条链路的毛病是**节奏**问题，不是逻辑问题。
  * 同一个 state 有四路调用方（regTimer 5 秒一轮、注册状态机自己又 check 一遍、
- * 面板点「检查」、本机 OfficeAce 应用自己也在问云端），每一路单独看都没写错，
+ * 面板点「检查」、上游网关 应用自己也在问云端），每一路单独看都没写错，
  * 叠在一起就把云端问进了限流：
  *
  *   AgentArts.1100011: Too many requests for the same state. Please retry later.

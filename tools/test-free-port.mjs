@@ -127,7 +127,7 @@ fs.writeFileSync(
   [
     "import http from 'node:http';",
     'const port = Number(process.argv[2]);',
-    'http.createServer((req, res) => { res.writeHead(200, {"content-type": "text/plain"}); res.end("not officeace2api"); })',
+    'http.createServer((req, res) => { res.writeHead(200, {"content-type": "text/plain"}); res.end("not officejoker"); })',
     '  .listen(port, "127.0.0.1");',
     'setTimeout(() => process.exit(0), 120000);',
   ].join('\n'),

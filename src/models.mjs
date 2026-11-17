@@ -148,7 +148,7 @@ export class ModelRegistry {
         id,
         object: 'model',
         created: up?.created || local?.created || created,
-        owned_by: up?.ownedBy || local?.ownedBy || 'officeace',
+        owned_by: up?.ownedBy || local?.ownedBy || 'officejoker',
         ...(this.alias[id] ? { alias_of: this.alias[id] } : {}),
         ...(meta ? { display_name: meta.name, developer: meta.developer, context_window: meta.context } : {}),
         ...(local?.baseUrl ? { upstream_base: local.baseUrl } : {}),

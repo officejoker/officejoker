@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>officeace2api 控制台</title>
+<title>officejoker 控制台</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🛰️</text></svg>" />
 <style>
 /* ── 设计令牌：浅色系 ──────────────────────────────────────────────────
@@ -46,12 +46,6 @@ nav a{display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:7p
 nav a:hover{background:var(--panel2);color:var(--fg);text-decoration:none}
 nav a.on{background:var(--bg-a);color:var(--accent);font-weight:550}
 nav a i{font-style:normal;width:17px;text-align:center;opacity:.85;font-size:13px}
-/* 福利站导航：侧栏底部的外链入口，虚线跟上面几个页面隔开 */
-nav a.ext{position:relative;margin-top:11px;color:var(--ink-a);font-weight:550}
-nav a.ext::before{content:"";position:absolute;left:0;right:0;top:-6px;border-top:1px dashed var(--line)}
-nav a.ext:hover{background:var(--bg-a);color:var(--accent);text-decoration:none}
-nav a.ext em{margin-left:auto;font-style:normal;font-size:12px;opacity:.55}
-nav a.ext i{font-size:12px}
 aside .foot{padding:11px 14px;border-top:1px solid var(--line2);font-size:11px;color:var(--dim);font-family:var(--mono);line-height:1.7}
 aside .foot .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--dim);margin-right:6px;vertical-align:1px}
 aside .foot .dot.on{background:var(--ok)}
@@ -410,13 +404,13 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
 .sw.on{background:var(--accent)}
 .sw i{position:absolute;top:2.5px;left:2.5px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 2px rgba(16,20,32,.25)}
 .sw.on i{left:19.5px}
-@media(max-width:900px){aside{width:56px}.brand span,aside .foot,nav a span,nav a.ext em{display:none}.brand{padding:16px 10px}.brand b{font-size:0;text-align:center}.brand b::after{content:"O²";font-size:19px;color:var(--accent)}nav a{justify-content:center}main{padding:14px}.us-filters .dates{min-width:0;flex-basis:100%;flex-wrap:wrap}#p-calls>h2.pg{flex-wrap:wrap}}
+@media(max-width:900px){aside{width:56px}.brand span,aside .foot,nav a span{display:none}.brand{padding:16px 10px}.brand b{font-size:0;text-align:center}.brand b::after{content:"OJ";font-size:19px;color:var(--accent)}nav a{justify-content:center}main{padding:14px}.us-filters .dates{min-width:0;flex-basis:100%;flex-wrap:wrap}#p-calls>h2.pg{flex-wrap:wrap}}
 </style>
 </head>
 <body>
 <div class="shell">
 <aside>
-  <div class="brand"><b>officeace2api</b><span id="ver">v-</span></div>
+  <div class="brand"><b>officejoker</b><span id="ver">v-</span></div>
   <nav id="nav">
     <a href="#overview" data-p="overview"><i>◎</i><span>概览</span></a>
     <a href="#accounts" data-p="accounts"><i>◉</i><span>账号池</span></a>
@@ -426,9 +420,6 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
     <a href="#access"   data-p="access"><i>⇄</i><span>接入信息</span></a>
     <a href="#logs"     data-p="logs"><i>≡</i><span>运行日志</span></a>
     <a href="#settings" data-p="settings"><i>⚙</i><span>配置</span></a>
-    <!-- 福利站导航：外部链接，不挂 data-p（它不是本服务的一个页面，点击也不走 hash 路由） -->
-    <a class="ext" href="https://github.com/Q-shuang-dot/ai-coding-welfare" target="_blank" rel="noreferrer"
-       title="福利站导航 · AI 编码福利站合集（外链，新标签页打开）"><i>✦</i><span>福利站导航</span><em>↗</em></a>
   </nav>
   <div class="foot" id="foot"><span class="dot" id="footDot"></span><span id="footTxt">连接中…</span></div>
 </aside>
@@ -556,18 +547,18 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
 
   <!-- 凭据池 -->
   <div class="page" id="p-creds">
-    <h2 class="pg">凭据池 <small id="credSub">来自本机 OfficeAce 客户端</small></h2>
+    <h2 class="pg">凭据池 <small id="credSub">来自本机 上游网关</small></h2>
     <section>
       <div class="body scroll" id="credBody"></div>
     </section>
     <section>
       <h3>凭据来源说明</h3>
       <div class="body hint">
-        凭据由本服务从本机文件中自动读取，只读不写，不会影响 OfficeAce 客户端本身：<br />
+        凭据由本服务从本机文件中自动读取，只读不写，不会影响 上游网关本身：<br />
         <code>~/.office-claw/.jiuwenclaw/config/routing_state/users/&lt;账号ID&gt;/models.json</code><br />
-        默认每 45 秒重新扫描一次；OfficeAce 刷新凭据后本服务会自动跟进。
-        扫描到 0 条时：点本页右上角「换个账号登录」自己登一个（不需要 OfficeAce 桌面端）；<br />
-        如果你已经装了 OfficeAce，也可以登录它并发一条消息，再点「重新发现凭据」。
+        默认每 45 秒重新扫描一次；officejoker 刷新凭据后本服务会自动跟进。
+        扫描到 0 条时：点本页右上角「换个账号登录」自己登一个（不需要 上游网关）；<br />
+        如果你已经装了 officejoker，也可以登录它并发一条消息，再点「重新发现凭据」。
       </div>
     </section>
   </div>
@@ -597,14 +588,14 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
       <h3>手工导入账号</h3>
       <div class="body field">
         <label>别名</label><input id="acImpLabel" placeholder="例如：主力号 / 备用号" />
-        <label>网关地址</label><input id="acImpBase" placeholder="https://modelgw-0004.officeace.cn-southwest-2.huaweicloud-agentarts.com/v2" />
+        <label>网关地址</label><input id="acImpBase" placeholder="https://modelgw-0004.cn-southwest-2.huaweicloud-agentarts.com/v2" />
         <label>鉴权头</label><input id="acImpAuth" placeholder="Basic base64(AK:SK)" />
         <label>过期时间</label><input id="acImpExp" placeholder="可选，2026-01-01T00:00:00Z" />
         <div class="row"><button id="acImpGo">导入</button><button class="ghost" id="acImpCancel">取消</button></div>
       </div>
       <div class="body hint" style="padding-top:0">
         适合从别的机器搬账号：把目标机器 <code>models.json</code> 里的 <code>api_base</code> 与
-        <code>custom_headers.Authorization</code> 填进来即可。导入的账号只存元数据，不动 OfficeAce 任何文件。
+        <code>custom_headers.Authorization</code> 填进来即可。导入的账号只存元数据，不动 officejoker 任何文件。
       </div>
     </section>
     <section>
@@ -640,7 +631,7 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
           ② 临时 AK/SK 与过期时间：<code>&lt;安装目录&gt;\packages\api\.config\secure-config-nodejs\oauth-&lt;账号ID&gt;.json</code><br />
           ③ 模型目录：<code>~/.office-claw/users/&lt;账号ID&gt;/model.json</code><br />
           ② 用 Windows DPAPI（当前用户）解开安装密钥，再用 AES-256-GCM 解密档案，因此能显示准确的剩余时长。<br />
-          账号 ID 形如 <code>&lt;华为云账号ID&gt;:&lt;IAM用户ID&gt;</code>，就是 OfficeAce 自己的目录名。
+          账号 ID 形如 <code>&lt;华为云账号ID&gt;:&lt;IAM用户ID&gt;</code>，就是 上游的目录名。
         </div>
       </details>
     </section>
@@ -685,8 +676,8 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
       <h3>近 30 天消耗（积分/天）</h3>
       <div class="body scroll short" id="crUsage"></div>
       <div class="body hint" style="padding-top:0">
-        数字来自华为 AgentArts 的 <code>/v1/subscription/usage?sku_attr_code=officeace_points</code>，
-        按北京时间的自然日分桶。积分单位是 <code>officeace_points</code>，扣费顺序是
+        数字来自华为 AgentArts 的用量接口，
+        按北京时间的自然日分桶。扣费顺序是
         <b>先到期早的先用</b>（先奖励、后套餐）。
       </div>
     </section>
@@ -703,10 +694,10 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
     <section>
       <h3>额度是怎么查出来的</h3>
       <div class="body hint">
-        直接问华为云，本机 OfficeAce 登录与否不影响（只要临时 AK/SK 没过期）：<br />
+        直接问华为云，上游网关 登录与否不影响（只要临时 AK/SK 没过期）：<br />
         ① <code>GET /v1/claw/client-permission-validate</code> —— 校验凭据，取该账号的专属网关地址<br />
         ② <code>GET {网关}/v1/subscription</code> —— 套餐 + 积分：
-        <code>skus[].quotas[]</code> 里 <code>sku_attr_code=officeace_points</code> 的
+        套餐配额（积分项）
         <code>sku_value</code>（总额）减 <code>current_value</code>（已用）就是剩余；
         <code>bonus_skus[]</code> 是奖励积分，算法一样<br />
         ③ <code>GET /v1/subscription/usage</code> —— 每天花了多少积分、多少 token<br />
@@ -724,10 +715,10 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
     </h2>
 
     <section>
-      <h3>本机 OfficeAce 服务</h3>
+      <h3>上游网关 服务</h3>
       <div class="body kv" id="auApp"></div>
       <div class="body hint" style="padding-top:0">
-        一键授权走的是本机 OfficeAce 自己的登录链路（<code>/api/login/authorize</code> →
+        一键授权走的是上游网关 自己的登录链路（<code>/api/login/authorize</code> →
         华为云登录页 → <code>/api/login/oauth/poll</code>），
         因为 PKCE 的 code_verifier 在应用进程里，只有这样应用才能把授权换成的临时 AK/SK 落到磁盘。
         授权完成后本服务自动把新账号并入号池，勾选「入池后用别名」可顺手改个名。
@@ -780,7 +771,7 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
       </div>
       <div class="body" id="rgRedeemOut"></div>
       <div class="body hint" style="padding-top:0">
-        兑换走本机 OfficeAce 的 <code>/api/login/invitation</code>。
+        兑换走上游网关 的 <code>/api/login/invitation</code>。
         常见失败原因：邀请码无效 / 今日额度用完 / 账号未实名认证 / 账号欠费 / 权限不足。
       </div>
     </section>
@@ -924,9 +915,9 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
       <h3>已忽略的账号 <small id="igSub"></small></h3>
       <div class="body" id="igList"></div>
       <div class="body hint" style="padding-top:0">
-        在这里点过「删除」的本机账号。它们的来源是本机 OfficeAce 的三处只读文件，
+        在这里点过「删除」的本机账号。它们的来源是上游网关 的三处只读文件，
         删掉内存记录下一轮扫描又会回来，所以做法是记进忽略名单：
-        不再出现在账号列表里，也不会被拿去发请求。<b>OfficeAce 自己的文件一个字都没动</b>，
+        不再出现在账号列表里，也不会被拿去发请求。<b>上游的文件一个字都没动</b>，
         所以随时能恢复。
       </div>
     </section>
@@ -943,7 +934,7 @@ button.danger:hover{background:var(--bg-err);border-color:var(--err);color:var(-
       <div id="adIntro">
         <div class="step on"><span class="n">1</span><div>
           <b>点「开始登录」拿一条授权链接</b>
-          <div class="dim" style="margin-top:3px">链接由本服务自己拼（PKCE），不需要装也不用开 OfficeAce 桌面端。</div>
+          <div class="dim" style="margin-top:3px">链接由本服务自己拼（PKCE），不需要装也不用开 上游网关。</div>
         </div></div>
         <div class="step"><span class="n">2</span><div>
           <b>在弹出的新页面里登录华为账号</b>
@@ -1237,7 +1228,7 @@ function renderOverview() {
 
 /* ---------------- 接入信息 ---------------- */
 function baseUrl() { return location.origin + "/v1"; }
-function firstKey() { return (S.config.apiKeys && S.config.apiKeys[0]) || "sk-officeace"; }
+function firstKey() { return (S.config.apiKeys && S.config.apiKeys[0]) || "sk-officejoker"; }
 
 function renderAccess() {
   $("#acKv").innerHTML =
@@ -1805,7 +1796,7 @@ function renderCreds() {
   const ps = S.poolStats || {};
   const affTotal = (ps.affinityHits || 0) + (ps.affinityMisses || 0);
   const aff = affTotal ? Math.round(((ps.affinityHits || 0) / affTotal) * 100) : null;
-  const bits = ["来自本机 OfficeAce 客户端"];
+  const bits = ["来自本机 上游网关"];
   if (aff !== null) bits.push("同会话续用 " + aff + "%");
   if (ps.queueWaits) bits.push("排队 " + ps.queueWaits + " 次 / 超时 " + (ps.queueTimeouts || 0));
   const tripped = list.filter((c) => c.breakerMsLeft > 0).length;
@@ -1831,7 +1822,7 @@ function renderCreds() {
           ? '<span class="tag warn">冷却中</span>'
           : '<span class="tag ok">可用</span>'
     ])
-  ) : empty("没有发现凭据 —— 点右上角「换个账号登录」自己登一个（不需要 OfficeAce 桌面端）");
+  ) : empty("没有发现凭据 —— 点右上角「换个账号登录」自己登一个（不需要 上游网关）");
 }
 
 /* ---------------- 用量 ---------------- */
@@ -2337,7 +2328,7 @@ function fmtP(n) {
 /**
  * 把「读不到积分」的长错误串压成一句话。
  * 原文是给排障看的（"凭据已过期，续期失败：refresh_token 已经全部作废（磁盘那份和
- * 轮换那份都被用过了），需要重新登录一次 OfficeAce 或走一遍自助登录"），
+ * 轮换那份都被用过了），需要重新登录一次 上游网关或走一遍自助登录"），
  * 铺在表格里会把整行撑到十几行高。原文仍挂在 title 上，不丢信息。
  */
 function creditErrShort(msg) {
@@ -2419,7 +2410,7 @@ function creditOverview(elBig, elSay) {
 
   const lines = [];
   if (!items.length) {
-    lines.push("号池里还没有账号。点右上角「导入账号」自己登一个（不需要 OfficeAce 桌面端），或从别的机器导一份凭据。");
+    lines.push("号池里还没有账号。点右上角「导入账号」自己登一个（不需要 上游网关），或从别的机器导一份凭据。");
   } else if (!okOnes.length) {
     lines.push("⚠ 还没读到积分。点「刷新积分」；如果失败，多半是临时凭据过期了，需要重新登录一次。");
   } else {
@@ -2654,7 +2645,7 @@ function renderAccounts() {
   acShown = shown;
   renderAcBatch();
   if (!list.length) {
-    $("#acBody").innerHTML = empty("号池为空。点右上角「导入账号」自己登一个（不需要 OfficeAce 桌面端），或从别的机器导一份凭据。");
+    $("#acBody").innerHTML = empty("号池为空。点右上角「导入账号」自己登一个（不需要 上游网关），或从别的机器导一份凭据。");
     return;
   }
   if (!shown.length) {
@@ -2827,7 +2818,7 @@ function creditCard(c) {
       '<span class="tag err">读不到</span>' + (c.enabled ? "" : '<span class="tag warn">已停用</span>') + "</div>" +
       '<div class="num err">?</div>' +
       '<div class="say">' + esc(c.error || "未知错误") + "</div>" +
-      '<div class="say">多半是临时凭据过期了 —— 打开 OfficeAce 重新登录一次，再回来刷新。</div>' +
+      '<div class="say">多半是临时凭据过期了 —— 打开 officejoker 重新登录一次，再回来刷新。</div>' +
       '<div class="row" style="margin-top:10px"><button class="ghost mini" data-cr="one" data-id="' + esc(c.id) + '">重试</button></div>' +
       "</div>";
   }
@@ -2922,7 +2913,7 @@ function renderCredits() {
 
   $("#crCards").innerHTML = items.length
     ? items.map(creditCard).join("")
-    : empty("号池里还没有账号。到「号池」页点「换个账号登录」（不需要装 OfficeAce 桌面端），或手工导入一份 baseUrl + authorization。");
+    : empty("号池里还没有账号。到「号池」页点「换个账号登录」（不需要装 上游网关），或手工导入一份 baseUrl + authorization。");
 
   // 近 30 天消耗
   const withUsage = items.filter((i) => i.ok && i.usage && i.usage.items && i.usage.items.length);
@@ -2977,7 +2968,7 @@ function renderAuth() {
   const app = au.app || {};
   const st = rg.stats || {};
 
-  $("#auSub").textContent = "本机 OfficeAce " + (app.found ? "在线" : "未发现") +
+  $("#auSub").textContent = "上游网关 " + (app.found ? "在线" : "未发现") +
     " · 登录态 " + (app.islogin ? "已登录" : "未登录") +
     " · 注册队列 " + (st.pending || 0) + " 个待处理";
 
@@ -3192,9 +3183,9 @@ async function acAct(kind, id) {
       toast("已改名", "ok");
     } else if (kind === "remove") {
       if (!confirm("从号池移除「" + (a.label || id) + "」？\n\n" +
-        "手工导入的号会真删；本机 OfficeAce 文件里发现的号没法真删（删了下一轮扫描又回来），\n" +
+        "手工导入的号会真删；上游网关 文件里发现的号没法真删（删了下一轮扫描又回来），\n" +
         "所以会记进忽略名单：不再出现在列表里，也不会被拿去发请求。\n" +
-        "OfficeAce 自己的文件一律不动，想找回来在「配置」页最下面恢复。")) return;
+        "上游的文件一律不动，想找回来在「配置」页最下面恢复。")) return;
       const r = await api("admin/api/accounts/remove", { method: "POST", json: { id } });
       toast(r.removable ? "已删除" : "已移除（已记入忽略名单，可在配置页恢复）", r.removable ? "ok" : "ok");
     }
@@ -3493,7 +3484,7 @@ function bindAccountAuthEvents() {
       if (!r.ok) { toast("导出失败（HTTP " + r.status + "）", "err"); return; }
       const cd = r.headers.get("content-disposition") || "";
       const m = /filename="([^"]+)"/.exec(cd);
-      const name = m ? m[1] : "officeace2api-accounts.json";
+      const name = m ? m[1] : "officejoker-accounts.json";
       const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
       const a = document.createElement("a");
       a.href = url;
@@ -3515,7 +3506,7 @@ function bindAccountAuthEvents() {
   $("#adFileGo").addEventListener("click", async () => {
     const input = $("#adFile");
     const f = input.files && input.files[0];
-    if (!f) { toast("先选一个导出文件（officeace2api-accounts-*.json）", "warn"); return; }
+    if (!f) { toast("先选一个导出文件（officejoker-accounts-*.json）", "warn"); return; }
     const btn = $("#adFileGo");
     const note = $("#adFileNote");
     btn.disabled = true;
@@ -3709,7 +3700,7 @@ function go(p) {
 }
 window.addEventListener("hashchange", () => go((location.hash || "#overview").slice(1)));
 
-/* 只接管站内 hash 链接（#nav 里的外链，比如「福利站导航」，要能正常跳出去） */
+/* 只接管站内 hash 链接 */
 $$('#nav a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); location.hash = a.getAttribute("href"); }));
 
 $("#btnRediscover").onclick = async () => {

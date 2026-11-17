@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 端到端自测：对本服务发起一次真实请求
- *   node tools/smoke-test.mjs [--base http://127.0.0.1:7864] [--key sk-officeace] [--model glm-5.2] [--stream]
+ *   node tools/smoke-test.mjs [--base http://127.0.0.1:7864] [--key sk-officejoker] [--model glm-5.2] [--stream]
  */
 
 import fs from 'node:fs';
@@ -23,7 +23,7 @@ const opt = (name, fallback) => {
 };
 
 const base = opt('--base', `http://${config.listen?.host || '127.0.0.1'}:${config.listen?.port || 7864}`);
-const key = opt('--key', config.apiKeys?.[0] || 'sk-officeace');
+const key = opt('--key', config.apiKeys?.[0] || 'sk-officejoker');
 const model = opt('--model', '');
 const wantStream = argv.includes('--stream');
 

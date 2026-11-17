@@ -11,7 +11,7 @@ import { adminHeaders } from './adminToken.mjs';
 const base = 'http://127.0.0.1:7864';
 // ⚠️ 面板接口要口令（服务首次启动会自动生成 admin.token）。
 // 用 adminHeaders() 统一带上，别写死 —— 写死的话换个口令就跑不了。
-const H = adminHeaders({ Authorization: 'Bearer sk-officeace', 'Content-Type': 'application/json' });
+const H = adminHeaders({ Authorization: 'Bearer sk-officejoker', 'Content-Type': 'application/json' });
 
 const j = async (p, opt) => {
   const r = await fetch(base + p, { headers: H, ...opt });

@@ -92,7 +92,7 @@ for (const [i, s] of STAMPS.entries()) {
   fs.writeFileSync(path.join(dir, 'oauth-accounts.json'), '{}');
   const t = new Date(now - (STAMPS.length - i) * 86400000);
   fs.utimesSync(dir, t, t);
-  const file = path.join(SIM, 'accounts-backup', `officeace2api-accounts-OLD-${s.slice(0, 8)}-${s.slice(8, 12)}.json`);
+  const file = path.join(SIM, 'accounts-backup', `officejoker-accounts-OLD-${s.slice(0, 8)}-${s.slice(8, 12)}.json`);
   fs.writeFileSync(file, '{}');
   fs.utimesSync(file, t, t); // 注意：utimes 之后再改文件会刷新 mtime，所以写完才设
 }

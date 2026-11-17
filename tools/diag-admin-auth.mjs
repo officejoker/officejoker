@@ -18,7 +18,7 @@ const hit = async (p, tok, apiKey) => {
   return r.status;
 };
 
-const KEY = process.env.O2A_KEY || 'sk-officeace';
+const KEY = process.env.O2A_KEY || 'sk-officejoker';
 const rows = [
   // [路径, 面板口令, API Key, 期望状态码, 说明]
   ['/admin/api/state', null, null, 401, '面板接口不带口令必须拦'],

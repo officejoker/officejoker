@@ -164,7 +164,7 @@ if (live && !foreign) {
     meta: store.meta,
   });
   if (!collected.length) {
-    die('本机没有可导出的账号。先去 OfficeAce 登录一个号，或在面板上「导入账号」，再回来导出。');
+    die('本机没有可导出的账号。先去 officejoker 登录一个号，或在面板上「导入账号」，再回来导出。');
   }
   text = JSON.stringify(
     buildBundle(

@@ -20,7 +20,7 @@
 import { writeFileSync } from 'node:fs';
 
 const BASE = 'http://127.0.0.1:7864';
-const KEY = 'sk-officeace';
+const KEY = 'sk-officejoker';
 const ROUNDS = Number(process.argv[2]) || 12;
 const MODEL = process.argv[3] || 'deepseek-v4.1-flash';
 

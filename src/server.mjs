@@ -739,7 +739,7 @@ export function createApp(ctx) {
       if (!cred) {
         observeCompletion({ model, ok: false, status: 503, errorCode: 'no_credential', error: '凭据池为空' });
         return openAiError(
-          '凭据池为空：打开控制台「号池」页点「换个账号登录」即可（不需要 OfficeAce 桌面端）；' +
+          '凭据池为空：打开控制台「号池」页点「换个账号登录」即可（不需要 上游网关）；' +
           '也可以「导入账号」贴一份 baseUrl + Authorization，或在 config.json 里手工填 upstream.baseUrl / upstream.authorization',
           { status: 503, type: 'no_credential', code: 'no_credential' },
         );
@@ -2114,7 +2114,7 @@ export function createApp(ctx) {
               empty: true,
               error: {
                 message:
-                  '本机没有可导出的账号。先去 OfficeAce 登录一个号，或在面板上「导入账号」，再回来导出。',
+                  '本机没有可导出的账号。先去 officejoker 登录一个号，或在面板上「导入账号」，再回来导出。',
               },
             });
           }
@@ -2218,7 +2218,7 @@ export function createApp(ctx) {
           ...r, // 含 removable / ignored:true
           note: r.removable
             ? '已删除'
-            : '该账号来自本机 OfficeAce 的文件。本服务不写 OfficeAce 的任何文件，所以做法是把它记进忽略名单：\n' +
+            : '该账号来自上游网关 的文件。本服务不写 上游网关的任何文件，所以做法是把它记进忽略名单：\n' +
               '以后扫盘直接跳过，面板上也不会再出现。想找回来去「配置」页最下面的「已忽略的账号」点恢复。',
           // 注意别叫 ignored —— 上面 ...r 里已经有一个同名的布尔值，
           // 用同名键会把它覆盖掉（踩过一次）。
@@ -2361,7 +2361,7 @@ export function createApp(ctx) {
 
       /* ==================================================== 自助登录 */
 
-      // 和「一键授权」的区别：那条路要本机 OfficeAce 桌面端在跑，
+      // 和「一键授权」的区别：那条路要本机 上游网关在跑，
       // 这条路自己完成整个 OAuth，桌面端开不开都行。
 
       if (pathname === '/admin/api/login/status' && req.method === 'GET') {

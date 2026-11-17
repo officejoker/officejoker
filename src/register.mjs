@@ -10,7 +10,7 @@
  *
  *   注册成功之后的环节全部自动：
  *     1. 检测新账号出现（扫号池）
- *     2. 触发一键授权（复用 AuthFlow，走本机 OfficeAce）
+ *     2. 触发一键授权（复用 AuthFlow，走上游网关）
  *     3. 兑换邀请码开通免费额度（POST <本机API>/api/login/invitation）
  *
  *   短信验证码来源可插拔：
@@ -481,10 +481,10 @@ export class RegisterQueue {
 
   /* -------------------------------------------------------------- 激活 */
 
-  /** 兑换邀请码：走本机 OfficeAce 的 /api/login/invitation */
+  /** 兑换邀请码：走上游网关 的 /api/login/invitation */
   async redeem(code) {
     const app = this.authFlow ? await this.authFlow.detectApp({ force: true }) : null;
-    if (!app) return { ok: false, needCode: false, message: '本机 OfficeAce 未运行，无法兑换邀请码' };
+    if (!app) return { ok: false, needCode: false, message: '上游网关 未运行，无法兑换邀请码' };
     try {
       const res = await request(`${app.baseUrl}/api/login/invitation`, {
         method: 'POST',

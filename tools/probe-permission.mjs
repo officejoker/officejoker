@@ -43,7 +43,7 @@ store.load();
 store.scan();
 const acc = [...store.accounts.values()][0];
 if (!acc?.profile?.accessKeyId) {
-  console.log('没发现带临时凭据的账号，先把 OfficeAce 登录一次');
+  console.log('没发现带临时凭据的账号，先把 officejoker 登录一次');
   process.exit(1);
 }
 

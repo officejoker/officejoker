@@ -9,7 +9,7 @@ import { adminHeaders } from './adminToken.mjs';
 import { readFileSync } from 'node:fs';
 
 const BASE = 'http://127.0.0.1:7864';
-const KEY = 'sk-officeace';
+const KEY = 'sk-officejoker';
 const H = adminHeaders({ Authorization: `Bearer ${KEY}` });
 
 const get = async (p) => (await fetch(BASE + p, { headers: H })).json();

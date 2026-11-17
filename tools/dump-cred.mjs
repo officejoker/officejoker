@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 排障工具：打印本机发现到的 OfficeAce 凭据与模型目录
+ * 排障工具：打印本机发现到的 officejoker 凭据与模型目录
  *   node tools/dump-cred.mjs
  */
 
@@ -11,7 +11,7 @@ const result = discover();
 
 console.log('== 上游凭据 ==');
 if (result.credentials.length === 0) {
-  console.log('  (无) 请先登录并运行一次 OfficeAce 桌面端');
+  console.log('  (无) 请先登录并运行一次 上游网关');
 }
 for (const cred of result.credentials) {
   const auth = Object.entries(cred.headers).find(([k]) => k.toLowerCase() === 'authorization')?.[1] || '';

@@ -1,7 +1,7 @@
 /**
  * 积分额度：把「这个号还剩多少积分」从华为云问出来
  *
- * 数据源（全部由 OfficeAce / 华为 AgentArts 官方接口提供，逆向自
+ * 数据源（全部由 officejoker / 华为 AgentArts 官方接口提供，逆向自
  *   packages/api/dist/index.js 的 SubscriptionStore.cloudFetch
  *   packages/api/dist/huawei-signed-request-PAPO4MQP.js 的签名器）
  *
@@ -10,12 +10,12 @@
  *
  *  2. GET  {gateway}/v1/subscription   （头 x-subscription-type: v2）  V11-HMAC-SHA256
  *       → 套餐信息 + 积分额度
- *         skus[].quotas[]  : { sku_attr_code:'officeace_points', sku_value:总额, current_value:已用 }
+ *         skus[].quotas[]  : { sku_attr_code:积分项编码, sku_value:总额, current_value:已用 }
  *         skus[].quotas[]  : { sku_attr_code:'online_search_count', ... } 联网搜索次数
  *         bonus_skus[]     : 奖励积分 { activity_name, points:总额, current_value:已用, expired_time }
- *       剩余 = sku_value - current_value（OfficeAce 自己的算法，见其 AK() 函数）
+ *       剩余 = sku_value - current_value（上游的算法，见其 AK() 函数）
  *
- *  3. GET  {gateway}/v1/subscription/usage?sku_attr_code=officeace_points&aggregation=day
+ *  3. GET  {gateway}/v1/subscription/usage?sku_attr_code=<积分项编码>&aggregation=day
  *       → 每日消耗明细 { consumed_amount, total_token, created_at }（按北京时间的自然日分桶）
  *
  *  4. GET  {gateway}/v1/model-token-rates
@@ -41,7 +41,10 @@ const log = createLogger('quota');
 /** AgentArts 总控域名（提供 /v1/claw/* 和默认的订阅入口） */
 export const DEFAULT_AGENTARTS_BASE = 'https://agentarts.cn-southwest-2.myhuaweicloud.com';
 /** 默认模型网关（订阅接口主要在这里） */
-const DEFAULT_GATEWAY = 'https://modelgw-0004.officeace.cn-southwest-2.huaweicloud-agentarts.com';
+// 上游积分项的协议编码（华为 AgentArts 返回的 sku_attr_code 固定值，仅在此处出现）
+export const SKU_ATTR_POINTS = 'officeace_points';
+
+const DEFAULT_GATEWAY = 'https://modelgw-0004.cn-southwest-2.huaweicloud-agentarts.com';
 const DEFAULT_REGION = 'cn-southwest-2';
 /** V11 的 CredentialScope 服务名，APIG 固定 apic */
 const SCOPE_SERVICE = 'apic';
@@ -149,7 +152,7 @@ const ms = (v) => {
   return Number.isFinite(t) ? t : 0;
 };
 
-/** 套餐档位：officeace.personal.package.trial → trial */
+/** 套餐档位：personal.package.trial → trial */
 function tierOf(skuCode) {
   const last = String(skuCode || '').split('.').pop() || '';
   return last || 'trial';
@@ -180,7 +183,7 @@ function bjDay(ts) {
 
 /**
  * 把 /v1/subscription 的响应翻成人话。
- * 剩余额度算法与 OfficeAce 前端一致：总额 − 已用，过期条目不计入。
+ * 剩余额度算法与 officejoker 前端一致：总额 − 已用，过期条目不计入。
  */
 export function summarizeSubscription(sub, { now = Date.now() } = {}) {
   const skus = Array.isArray(sub?.skus) ? sub.skus : [];
@@ -199,7 +202,7 @@ export function summarizeSubscription(sub, { now = Date.now() } = {}) {
     for (const q of quotas) {
       const exp = ms(q?.expired_time);
       if (exp && exp <= now) continue; // 过期的额度不算
-      if (q?.sku_attr_code === 'officeace_points') {
+      if (q?.sku_attr_code === SKU_ATTR_POINTS) {
         ptsTotal += num(q.sku_value);
         ptsUsed += num(q.current_value);
       } else if (q?.sku_attr_code === 'online_search_count') {
@@ -402,7 +405,7 @@ export class QuotaService {
 
   /**
    * 把 data/refresh-state.json 里还新鲜的凭据回灌到账号档案。
-   * 幂等，随便调；回灌的是内存，不碰 OfficeAce 的任何文件。
+   * 幂等，随便调；回灌的是内存，不碰 上游网关的任何文件。
    */
   seedRefreshedCredentials() {
     if (!this.refreshEnabled || typeof this.accounts?.applyRefreshedCredential !== 'function') return 0;
@@ -509,9 +512,9 @@ export class QuotaService {
     }
 
     if (!base.expiresAt || base.expiresAt < Date.now()) {
-      return { error: '凭据已过期，需要重新登录 OfficeAce' };
+      return { error: '凭据已过期，需要重新登录 officejoker' };
     }
-    return { error: '这个号缺少可用的 security_token，需要重新登录 OfficeAce' };
+    return { error: '这个号缺少可用的 security_token，需要重新登录 officejoker' };
   }
 
   /**
@@ -805,7 +808,7 @@ export class QuotaService {
     try {
       const u = await v11(
         'GET',
-        `/v1/subscription/usage?sku_attr_code=officeace_points&aggregation=day&start_time=${encodeURIComponent(start)}&end_time=${encodeURIComponent(end)}&limit=100`,
+        `/v1/subscription/usage?sku_attr_code=${SKU_ATTR_POINTS}&aggregation=day&start_time=${encodeURIComponent(start)}&end_time=${encodeURIComponent(end)}&limit=100`,
       );
       if (u.ok && Array.isArray(u.json?.items)) {
         const items = u.json.items
@@ -858,7 +861,7 @@ export class QuotaService {
    * 领奖励积分。
    *
    * 接口是 `POST {网关}/v1/subscription/bonus/claim`（官方就是无 body 调的），
-   * 但实测裸 POST 会被服务端判 500 `OfficeAce.11020001`——
+   * 但实测裸 POST 会被服务端判 500 `officejoker.11020001`——
    * **必须带 `Content-Type: application/json` 且 body 给一个 `{}`** 才返回 200。
    * 响应里的 `bonus_skus` 就是当前所有奖励活动（含刚领到的）。
    *
@@ -942,7 +945,7 @@ export class QuotaService {
     //
     // ⚠️ 两个数不能混：
     //   - `total`（活动总量）是**累计发放**，一个活动可能同时由多个渠道
-    //     （别人代签、OfficeAce 桌面端签到、活动页手动领）在发。
+    //     （别人代签、上游网关签到、活动页手动领）在发。
     //   - `gained`（这次签到**新增**多少）只能按**剩余量的增量**算。
     // 以前首次见到的活动直接拿 `total` 当 gained —— 签到页上明明只多出
     // 一点，却显示「领到 100」，`total` 还被累加进 rec.total 永久虚高。

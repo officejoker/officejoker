@@ -10,7 +10,7 @@
  *   C) 告警打了但被日志轮转切掉了
  */
 const BASE = 'http://127.0.0.1:7864';
-const KEY = 'sk-officeace';
+const KEY = 'sk-officejoker';
 const H = { Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
 
 async function streamOnce(maxTokens) {

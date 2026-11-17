@@ -17,8 +17,8 @@
  *      连幽灵键都主动清掉。
  *
  * 那 2 个账号的真实来源：`discover.mjs` 里**写死**的那组安装路径
- * （`<盘>:\软件\OfficeAce\.office-claw`、`Program Files\...`）——
- * 这台机器上装了 OfficeAce，沙箱掉 HOME 也躲不开这些绝对路径。
+ * （`<盘>:\软件\officejoker\.office-claw`、`Program Files\...`）——
+ * 这台机器上装了 officejoker，沙箱掉 HOME 也躲不开这些绝对路径。
  * 换句话说那是**我的号**，不是幽灵。
  *
  * 所以这个脚本现在的用途是：把「labels 不生成账号」这条结论
@@ -140,7 +140,7 @@ else bad('没有 pruneMetaKeys()', '幽灵键会一直留着');
 
 console.log('\n【3】账号列表的来源是什么（该只有真凭据 + 手工导入）');
 const sources = [];
-if (/这块注释|本地凭据|routing_state/i.test(src)) sources.push('本机 OfficeAce 的 routing_state');
+if (/这块注释|本地凭据|routing_state/i.test(src)) sources.push('上游网关 的 routing_state');
 if (/meta\.imported/.test(src)) sources.push('meta.imported（手工导入）');
 note(`列表来源: ${sources.join(' + ') || '（没识别出来，需要人工看）'}`);
 if (!sources.includes('meta.labels')) ok('labels 不在列表来源里（确认：不会产生幽灵账号）');
@@ -150,11 +150,11 @@ console.log('\n【4】那"2 个账号"到底哪来的 —— discover.mjs 里写
 const disc = readFileSync(path.join(ROOT, 'src', 'discover.mjs'), 'utf8');
 const hardcoded = disc.includes("for (const drive of ['C', 'D', 'E'])");
 if (hardcoded) {
-  ok('确认：discover.mjs 会硬扫各盘的 OfficeAce 安装目录');
-  note('所以只要那台机器装了 OfficeAce，它就一定能扫到号 ——');
+  ok('确认：discover.mjs 会硬扫各盘的 officejoker 安装目录');
+  note('所以只要那台机器装了 officejoker，它就一定能扫到号 ——');
   note('沙箱掉 USERPROFILE 也躲不开（那些是绝对路径，不走 home()）。');
-  note('含义：别人装了这个项目**且**装了 OfficeAce 时，会自动共用本机的号；');
-  note('      没装 OfficeAce 的人走「换个账号登录」自己加。两条路都通。');
+  note('含义：别人装了这个项目**且**装了 officejoker 时，会自动共用本机的号；');
+  note('      没装 上游网关的人走「换个账号登录」自己加。两条路都通。');
 } else {
   note('没找到硬编码盘符扫描，实现改过了');
 }

@@ -1,7 +1,7 @@
 /**
  * DPAPI 解密（保留兼容层，仅 Windows 数据文件）
  *
- * 老 OfficeAce 桌面端把安装密钥和 OAuth 账号档案用 Windows DPAPI 加密落盘，
+ * 老 上游网关把安装密钥和 OAuth 账号档案用 Windows DPAPI 加密落盘，
  * 文件格式是：
  *   OC-DPAPI-1
  *   <base64 的 DPAPI blob>
@@ -17,7 +17,7 @@ import fs from 'node:fs';
 const DPAPI_HEADER = 'OC-DPAPI-1';
 
 /**
- * 读一个 OfficeAce 的 OC-DPAPI-1 文件；不是该格式就当明文返回。
+ * 读一个 上游网关的 OC-DPAPI-1 文件；不是该格式就当明文返回。
  * 容器里遇到 OC-DPAPI-1 头一律返回 null，由调用方降级处理。
  */
 export function readProtectedText(file) {

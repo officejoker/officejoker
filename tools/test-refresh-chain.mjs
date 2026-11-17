@@ -2,7 +2,7 @@
  * 续期 token 链的回归测试。
  *
  * 背景：refresh_token 是一次性轮换的 —— 每续期一次，服务端就把上一份作废。
- * 而 OfficeAce 写在磁盘上的档案是只读的，里面那份 token 永远是最初那份 T0，
+ * 而 officejoker 写在磁盘上的档案是只读的，里面那份 token 永远是最初那份 T0，
  * 所以我们得自己维护「现在哪一份还能用」。
  *
  * 这里用一个「用掉就作废」的假服务端，连续跑 30 次续期，断言一次都不该失败。
@@ -65,10 +65,10 @@ class FakeSts {
   }
 }
 
-const tmp = (tag) => path.join(os.tmpdir(), `officeace-refresh-${tag}-${process.pid}.json`);
+const tmp = (tag) => path.join(os.tmpdir(), `officejoker-refresh-${tag}-${process.pid}.json`);
 
 /* ------------------------------------------------------------------ 1. 新版 */
-const DISK = 'T0'; // 磁盘上永远是这份，OfficeAce 不会去更新它
+const DISK = 'T0'; // 磁盘上永远是这份，officejoker 不会去更新它
 const ROUNDS = 30;
 
 console.log(`\n[1] 新实现：连续 ${ROUNDS} 次续期（磁盘 token 恒定不变）`);
@@ -132,7 +132,7 @@ console.log(`\n[1] 新实现：连续 ${ROUNDS} 次续期（磁盘 token 恒定�
 }
 
 /* ------------------------------------------------------------------ 2. 断链恢复 */
-console.log('\n[2] 轮换值被别处用掉（模拟 OfficeAce 自己也登了一次）之后还能恢复');
+console.log('\n[2] 轮换值被别处用掉（模拟 上游也登了一次）之后还能恢复');
 {
   const file = tmp('recover');
   try {
@@ -157,7 +157,7 @@ console.log('\n[2] 轮换值被别处用掉（模拟 OfficeAce 自己也登了�
     });
   }
 
-  // 现在「OfficeAce 自己」把 T2 用掉了（我们不知道），换成了 T3
+  // 现在「上游」把 T2 用掉了（我们不知道），换成了 T3
   sts.consumed.add(sts.live);
   sts.n += 1;
   sts.live = `T${sts.n}`;
@@ -170,7 +170,7 @@ console.log('\n[2] 轮换值被别处用掉（模拟 OfficeAce 自己也登了�
   const p2 = st.pickToken('acct', DISK);
   ok('把作废的那份拉黑之后，不再重复发它', p2.token !== p1.token, `还是 ${p2.token}`);
 
-  // 关键：模拟 OfficeAce 重新登录，磁盘上出现一份全新的 token
+  // 关键：模拟 officejoker 重新登录，磁盘上出现一份全新的 token
   const fresh = sts.live;
   const p3 = st.pickToken('acct', fresh);
   ok('磁盘上出现新版 token 时能被认出来', p3.token === fresh, `拿到的是 ${p3.token}（来自 ${p3.source}）`);

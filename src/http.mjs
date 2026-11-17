@@ -2,7 +2,7 @@
  * 极简 HTTP 客户端
  *
  * 为什么不用内置 fetch：
- *   1. 本机 OfficeAce 的 API 跑在自签证书的 https://127.0.0.1:3004 上，
+ *   1. 上游网关 的 API 跑在自签证书的 https://127.0.0.1:3004 上，
  *      内置 fetch 无法关掉证书校验（没有 undici 依赖可用）；
  *   2. 需要精确控制超时、重定向、原始文本，这里用 node:https / node:http 直接做。
  */
@@ -32,7 +32,7 @@ export function request(url, opts = {}) {
     // 实测 authflow.mjs 轮询华为公网那个 /v1/claw/auth/code 就没传，
     // 等于给中间人留了读改授权码的门。
     //
-    // 需要跳过校验的只有「本机 OfficeAce 自签证书」这一类，
+    // 需要跳过校验的只有「上游网关 自签证书」这一类，
     // 那些调用点现在都显式写了 insecure: true，别把这个默认值改回去。
     insecure = false,
     redirect = 3,
@@ -123,8 +123,8 @@ export function request(url, opts = {}) {
   });
 }
 
-/** 探测一个地址是否是 OfficeAce 的本机 API（用 /api/islogin 的响应特征判断） */
-export async function looksLikeOfficeAceApi(baseUrl, timeoutMs = 3000) {
+/** 探测一个地址是否是 上游网关的本机 API（用 /api/islogin 的响应特征判断） */
+export async function looksLikeOfficeJokerApi(baseUrl, timeoutMs = 3000) {
   try {
     const res = await request(`${baseUrl.replace(/\/+$/, '')}/api/islogin`, {
       timeoutMs,

@@ -10,7 +10,7 @@ import { adminHeaders } from './adminToken.mjs';
 import { readFileSync } from 'node:fs';
 
 const BASE = 'http://127.0.0.1:7864';
-const KEY = 'sk-officeace';
+const KEY = 'sk-officejoker';
 
 async function api(path) {
   const r = await fetch(BASE + path, { headers: adminHeaders({ Authorization: `Bearer ${KEY}` }) });
@@ -89,7 +89,7 @@ try {
   let live = null;
   try {
     const r = await fetch('http://127.0.0.1:7864/admin/api/state', {
-      headers: { Authorization: 'Bearer sk-officeace' },
+      headers: { Authorization: 'Bearer sk-officejoker' },
       signal: AbortSignal.timeout(10000),
     });
     live = await r.json();

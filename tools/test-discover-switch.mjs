@@ -4,7 +4,7 @@
  *
  * 这个开关为什么存在，见 util.mjs 里 setMachineScanEnabled 的注释。要点是：
  * 原来只有 `upstream.autoDiscover: false`，而它**只关定时重扫**，启动扫描照跑 ——
- * 于是「只想当通用反代」的人，本机装过 OfficeAce 的话账号会被悄悄收进号池；
+ * 于是「只想当通用反代」的人，本机装过 上游网关的话账号会被悄悄收进号池；
  * 写测试时临时实例也会读到本机真实账号，甚至会替它们续期（那是在动用户的真凭据）。
  *
  * 这里验 9 件事，正反两面都要有对照：
@@ -51,7 +51,7 @@ const HOME = path.join(TMP, 'home');
 const FAKE_UID = 'fakeacct0001:fakeuser0002';
 const FAKE_BASE = 'https://gw.example.invalid/v2';
 
-// 一份最小的 OfficeAce 磁盘结构：routing_state/users/<uid>/models.json
+// 一份最小的 officejoker 磁盘结构：routing_state/users/<uid>/models.json
 const userDir = path.join(HOME, '.office-claw', '.jiuwenclaw', 'config', 'routing_state', 'users', encodeURIComponent(FAKE_UID));
 fs.mkdirSync(userDir, { recursive: true });
 fs.writeFileSync(
@@ -147,7 +147,7 @@ for (const f of fs.readdirSync(path.join(ROOT, 'src'))) {
 fs.writeFileSync(path.join(proj, 'config.json'), JSON.stringify({
   listen: { host: '127.0.0.1', port: PORT },
   admin: { token: ADMIN_TOKEN },
-  apiKeys: ['sk-officeace'],
+  apiKeys: ['sk-officejoker'],
   discover: { enabled: false, installDirs: [] },
   upstream: {
     autoDiscover: false,
@@ -199,7 +199,7 @@ try {
 
   const chat = await fetch(`http://127.0.0.1:${PORT}/v1/chat/completions`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: 'Bearer sk-officeace' },
+    headers: { 'content-type': 'application/json', authorization: 'Bearer sk-officejoker' },
     body: JSON.stringify({ model: 'fake-model', messages: [{ role: 'user', content: 'hi' }] }),
   });
   const chatText = await chat.text();

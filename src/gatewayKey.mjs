@@ -5,7 +5,7 @@
  *   一号登录进号池有两条路 ——
  *     A. **自助登录**（项目自己跑 OAuth）：一路走到 `client-permission-validate`，
  *        顺手就把 `model_auth_info` 里的 app_key/app_secret 拿回来写了档案。
- *     B. **一键授权**（借本机 OfficeAce 桌面端的会话）：只让桌面端写一份档案和
+ *     B. **一键授权**（借本机 上游网关的会话）：只让桌面端写一份档案和
  *        用户目录，**不产生 routing_state/users/<id>/models.json** ——
  *        而网关 Basic key 一直是从那个文件里读的。桌面端之所以有，是因为它自己
  *        请求过模型；没请求过就没有。

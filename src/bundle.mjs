@@ -12,7 +12,7 @@
  *                                  （consumed/deadTokens）、下一份该发哪个（rotatedToken）」，
  *                                  还有换回来的临时 AK/SK
  *   ③ `data/accounts.json`         只是元数据：别名 / 停用 / 忽略名单
- *   ④ 本机 OfficeAce 安装目录里的文件 —— **别人的文件**，只读；里面是同一套东西
+ *   ④ 上游网关 安装目录里的文件 —— **别人的文件**，只读；里面是同一套东西
  *
  * 所以搬运包必须同时带走 ①②③。只搬 Authorization 的话，新机器能转发、但读不到积分
  * （积分要临时 AK/SK，而 AK/SK 要 refresh_token 去换）；只搬 refresh_token 的话，
@@ -140,7 +140,7 @@ export function collectAccounts({ accounts = [], oauthDoc = {}, refreshDoc = {},
     });
   }
 
-  // ② 号池里剩下的：手工导入的（meta.imported 会在这里出现）、以及本机 OfficeAce
+  // ② 号池里剩下的：手工导入的（meta.imported 会在这里出现）、以及上游网关
   //    文件里发现的号。它们没有 refresh_token，但 baseUrl + Authorization 是长期有效的
   //    （Basic 鉴权，不会过期），所以搬过去至少能**直接转发**，只是积分/续期得重新登录。
   for (const acc of accounts || []) {
@@ -150,10 +150,10 @@ export function collectAccounts({ accounts = [], oauthDoc = {}, refreshDoc = {},
       const e = out.get(acc.id);
       if (!e.label) e.label = labels[acc.id] || acc.label || '';
       e.disabled = e.disabled || disabled.has(acc.id);
-      // 但 `refresh_token` 有一条例外：档案里那份**已经作废**、而扫盘（OfficeAce 自己的
+      // 但 `refresh_token` 有一条例外：档案里那份**已经作废**、而扫盘（上游的
       // 存储）手里还有一份我们从没见过、也没作废过的 —— 就用它的。
       //
-      // 为什么会这样：OfficeAce 客户端和本服务会抢同一条链（一次性 token，谁先用谁赢）。
+      // 为什么会这样：上游网关和本服务会抢同一条链（一次性 token，谁先用谁赢）。
       // 客户端赢了之后，它自己那份是活的，我们档案里那份进了黑名单。
       // 这时候导出如果照抄档案，包到新机器上必然续不上 —— 用户白重登一次，而这正是
       // 「换电脑」要消灭的事。实测踩到过：某个号的档案 token 已 1806 作废，
@@ -477,7 +477,7 @@ export function mergeBundle(bundle, { oauthDoc = {}, refreshDoc = {}, meta = {},
       }
     } else {
       // 不能续期的号（缺 refresh_token 或 DPoP 私钥）：并进 meta.imported，
-      // 这样即使新机器上没装 OfficeAce，也能直接转发。
+      // 这样即使新机器上没装 officejoker，也能直接转发。
       //
       // ⚠️ 但"本机本来就能发现这个号"的时候不要登记 —— 实测把包导回导出它的那台机器，
       // 每个扫出来的号都会多一条 imported 记录，同一个号就有了两个身份：
