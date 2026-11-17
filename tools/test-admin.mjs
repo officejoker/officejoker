@@ -609,7 +609,7 @@ console.log('\n[刷新与统计]');
   const s = summarizeSubscription({
     subscribe_status: 'SUBSCRIBED',
     skus: [{
-      sku_code: 'personal.package.standard',
+      sku_code: 'officeace.personal.package.standard',
       sku_name: '标准版',
       effective_time: past,
       expired_time: future,

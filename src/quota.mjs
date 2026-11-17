@@ -44,7 +44,7 @@ export const DEFAULT_AGENTARTS_BASE = 'https://agentarts.cn-southwest-2.myhuawei
 // 上游积分项的协议编码（华为 AgentArts 返回的 sku_attr_code 固定值，仅在此处出现）
 export const SKU_ATTR_POINTS = 'officeace_points';
 
-const DEFAULT_GATEWAY = 'https://modelgw-0004.cn-southwest-2.huaweicloud-agentarts.com';
+const DEFAULT_GATEWAY = 'https://modelgw-0004.officeace.cn-southwest-2.huaweicloud-agentarts.com';
 const DEFAULT_REGION = 'cn-southwest-2';
 /** V11 的 CredentialScope 服务名，APIG 固定 apic */
 const SCOPE_SERVICE = 'apic';
@@ -152,7 +152,7 @@ const ms = (v) => {
   return Number.isFinite(t) ? t : 0;
 };
 
-/** 套餐档位：personal.package.trial → trial */
+/** 套餐档位：officeace.personal.package.trial → trial */
 function tierOf(skuCode) {
   const last = String(skuCode || '').split('.').pop() || '';
   return last || 'trial';
